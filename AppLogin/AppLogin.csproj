@@ -20,17 +20,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.0.2" />
+    <PackageReference Include="NPOI" Version="2.7.1" />
     <PackageReference Include="Radzen.Blazor" Version="5.1.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\images\fondo.jpg" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,22 @@
+﻿@page "/users"
+
+<style>
+    .rz-grid-table {
+        width: unset;
+    }
+</style>
+
+<AuthorizeView Roles="Admin">
+    <NotAuthorized>
+        <NotAuthorizedPage/>
+    </NotAuthorized>
+    <Authorized>
+        <h3>Users and Roles</h3>
+        <br/>
+        <span>Tabla para modificar, eliminar y agregar usuarios</span>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    
+}

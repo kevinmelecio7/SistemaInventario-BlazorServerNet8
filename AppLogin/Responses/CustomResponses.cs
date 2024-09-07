@@ -1,4 +1,6 @@
-﻿namespace AppLogin.Responses
+﻿using AppLogin.DTOs;
+
+namespace AppLogin.Responses
 {
     public class CustomResponses
     {

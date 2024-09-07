@@ -42,7 +42,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
 });
-
 builder.Services.AddScoped<IAccount, Account>();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7199/") });
 builder.Services.AddScoped<IAccountService, AccountService>();
