@@ -11,8 +11,10 @@
 @using AppLogin.Components
 @using Blazored.SessionStorage
 
+@using AppLogin.Components.Modal
 @using AppLogin.Services
 @using AppLogin.DTOs
+@using AppLogin.DTOs.Excel
 @using AppLogin.Responses
 @using AppLogin.States
 @using Microsoft.AspNetCore.Components.Authorization
@@ -25,4 +27,6 @@
 @inject IJSRuntime js
 @inject NavigationManager NavManager
 @inject AuthenticationStateProvider AuthStateProvider
-@inject ISessionStorageService sessionStorage;
+@inject ISessionStorageService sessionStorage
+@inject ILoading Loading
+@inject IModal Modal

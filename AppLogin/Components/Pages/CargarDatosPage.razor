@@ -17,84 +17,581 @@
         <NotAuthorizedPage />
     </NotAuthorized>
     <Authorized>
-        <h3>Cargar datos de Excel</h3>
-        <br />
-        <InputFile OnChange="@ImportExcelFile" />
-
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    @foreach (DataColumn col in dt.Columns)
-                    {
-                        <th>@col.ColumnName</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (DataRow row in dt.Rows)
-                {
-
-                    <tr>
-                        @foreach (DataColumn col in dt.Columns)
-                        {
-
-                            <td>@row[col.ColumnName]</td>
-
-                        }
-                    </tr>
-
-                }
-            </tbody>
-        </table>
-
-        @code {
-
-        //Funcion para administrar excel
-        DataTable dt = new DataTable();
-
-        async Task ImportExcelFile(InputFileChangeEventArgs e)
+        <h3>Periodo Activo Inventario</h3>
+        @if (listPeriodo == null || listPeriodo.Count == 0)
         {
-            var fileStream = e.File.OpenReadStream();
-            var ms = new MemoryStream();
-            await fileStream.CopyToAsync(ms);
-            fileStream.Close();
-            ms.Position = 0;
+            <RadzenCard Variant="Variant.Filled" class="rz-my-2 rz-mx-auto rz-background-color-primary-lighter" Style="max-width: 420px">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-2">
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Registra un Periodo</RadzenText>
 
-            ISheet sheet;
-            var xsswb = new XSSFWorkbook(ms);
+                        <RadzenRow class="rz-text-align-center" >
+                            <RadzenColumn Size="4" class="rz-p-5">
+                                <RadzenLabel Text="Mes" Component="DropDownBindValueMonth" />
+                                <RadzenDropDown @bind-Value=@month Data=@dataMonth Style="width: 100%; max-width: 400px;" Name="DropDownBindValueMonth" />
+                            </RadzenColumn>
+                            <RadzenColumn Size="1" class="rz-p-5">
+                                -
+                            </RadzenColumn>
+                            <RadzenColumn Size="6" class="rz-p-5">
+                                <RadzenLabel Text="Año" Component="DropDownBindValueYear" />
+                                <RadzenDropDown @bind-Value=@year Data=@dataYear Style="width: 100%; max-width: 400px;" Name="DropDownBindValueYear" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenButton Click=@(()=>insertarPeriodo()) Text="GUARDAR NUEVO PERIODO" ButtonStyle="ButtonStyle.Primary" />
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
+        } else
+        {
+            <RadzenCard Variant="Variant.Filled" class="rz-my-2 rz-mx-auto rz-background-color-primary-lighter" Style="max-width: 420px">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
+                    <RadzenStack Gap="0">
+                        @if (listPeriodo[0].activo == 1)
+                        {
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Periodo Actual <b>(ABIERTO)</b> </RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1"><b>@listPeriodo[0].periodo</b></RadzenText>
+                            <RadzenButton Click=@(()=>actualizarPeriodo()) Text="Cerrar Periodo" ButtonStyle="ButtonStyle.Primary" />
+                        } else
+                        {
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Periodo Anterior <b>(CERRADO)</b> </RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1"><b>@listPeriodo[0].periodo</b></RadzenText>
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Nuevo Periodo</RadzenText>
+                            <RadzenRow class="rz-text-align-center">
+                                <RadzenColumn Size="4" class="rz-p-5">
+                                    <RadzenLabel Text="Mes" Component="DropDownBindValueMonth" />
+                                    <RadzenDropDown @bind-Value=@month Data=@dataMonth Style="width: 100%; max-width: 400px;" Name="DropDownBindValueMonth" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="1" class="rz-p-5">
+                                    -
+                                </RadzenColumn>
+                                <RadzenColumn Size="6" class="rz-p-5">
+                                    <RadzenLabel Text="Año" Component="DropDownBindValueYear" />
+                                    <RadzenDropDown @bind-Value=@year Data=@dataYear Style="width: 100%; max-width: 400px;" Name="DropDownBindValueYear" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenButton Click=@(()=>insertarPeriodo()) Text="Abrir Periodo" ButtonStyle="ButtonStyle.Success" />
+                        }
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
 
-            sheet = xsswb.GetSheetAt(0);
-            IRow hr = sheet.GetRow(0);
-            var rl = new List<string>();
-
-            int cc = hr.LastCellNum;
-            for (var j = 0; j < cc; j++)
+            @if (listPeriodo[0].activo == 1)
             {
-                ICell cell = hr.GetCell(j);
-                dt.Columns.Add(cell.ToString());
-            }
+                <div class="rz-p-sm-4">
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="Storage Bin" Icon="list" CollapseTitle="Collapse orders." class="rz-background-color-base-200"
+                                                 ExpandTitle="Expand orders." CollapseAriaLabel="Collapse the order details."
+                                                 ExpandAriaLabel="Expand the order details.">
 
-            for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
-            {
-                var r = sheet.GetRow(j);
-                for (var i = r.FirstCellNum; i < cc; i++)
-                {
-                    rl.Add(r.GetCell(i).ToString());
-                }
-                if (rl.Count > 0)
-                {
-                    dt.Rows.Add(rl.ToArray());
-                }
-                rl.Clear();
+                                @if (listStorage == null || listStorage.Count == 0)
+                                {
+                                    <InputFile OnChange="@ExcelMasterData_StorageBin" />
+                                } else
+                                {
+                                    @if (btnEliminarListStorage)
+                                    {
+                                        <RadzenRow class="rz-text-align-center">
+                                            <RadzenColumn Size="4">
+                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
+                                                    <RadzenIcon Icon="check_circle" />Informacion Almacenada
+                                                </RadzenText>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="6">
+                                                <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(1)) Text="CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    }
+                                    else if (btnGuardarNewListStorage)
+                                    {
+                                        <RadzenRow class="rz-text-align-center">
+                                            <RadzenColumn Size="4">
+                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
+                                                    <RadzenIcon Icon="highlight_off" />Sin Guardar
+                                                </RadzenText>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="6">
+                                        <RadzenButton class="rz-mb-2" Click=@(()=>guardarList(1)) Text="GUARDAR NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Info" />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                        
+                                    }
+                                    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
+                                                    AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                                                    Data="@listStorage" ColumnWidth="300rem" Density="Density.Compact">
+
+                                        <Columns>
+                                            <RadzenDataGridColumn Property="storagebin" Title="Storage Bin" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                }
+                                 
+                            </RadzenAccordionItem>
+                            <RadzenAccordionItem Text="Material" Icon="dns" CollapseTitle="Collapse employees." class="rz-background-color-base-200"
+                                                 ExpandTitle="Expand employees." CollapseAriaLabel="Collapse the employee details."
+                                                 ExpandAriaLabel="Expand the employee details.">
+                                @if (listMaterial == null || listMaterial.Count == 0)
+                                {
+                                    <InputFile OnChange="@ExcelMasterData_Material" />
+                                }
+                                else
+                                {
+                                    @if (btnEliminarlistMaterial)
+                                    {
+                                        <RadzenRow class="rz-text-align-center">
+                                            <RadzenColumn Size="4">
+                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
+                                                    <RadzenIcon Icon="check_circle" />Informacion Almacenada
+                                                </RadzenText>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="6">
+                                            <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(2)) Text="CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    }
+                                    else if (btnGuardarNewlistMaterial)
+                                    {
+                                        <RadzenRow class="rz-text-align-center">
+                                            <RadzenColumn Size="4">
+                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
+                                                    <RadzenIcon Icon="highlight_off" />Sin Guardar
+                                                </RadzenText>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="6">
+                                                <RadzenButton class="rz-mb-2" Click=@(()=>guardarList(2)) Text="GUARDAR NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Info" />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    }
+                                    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
+                                                    AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                                                    Data="@listMaterial" ColumnWidth="300rem" Density="Density.Compact">
+
+                                        <Columns>
+                                            <RadzenDataGridColumn Property="materialID" Title="materialID" />
+                                            <RadzenDataGridColumn Property="descripcion" Title="descripcion" />
+                                            <RadzenDataGridColumn Property="unit_price" Title="unit_price" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                } 
+                            </RadzenAccordionItem>
+                            <RadzenAccordionItem Text="Initial Load" Icon="book" CollapseTitle="Collapse customers." class="rz-background-color-base-200"
+                                                 ExpandTitle="Expand customers." CollapseAriaLabel="Collapse the customer details."
+                                                 ExpandAriaLabel="Expand the customer details.">
+                                @if (listMaterial == null || listMaterial.Count == 0)
+                                {
+                                    <InputFile OnChange="@ExcelMasterData_Material" />
+                                }
+                                else
+                                {
+                                    @if (btnEliminarlistMaterial)
+                                    {
+                                        <RadzenRow class="rz-text-align-center">
+                                            <RadzenColumn Size="4">
+                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
+                                                    <RadzenIcon Icon="check_circle" />Informacion Almacenada
+                                                </RadzenText>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="6">
+                                                <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(2)) Text="CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    }
+                                    else if (btnGuardarNewlistMaterial)
+                                    {
+                                        <RadzenRow class="rz-text-align-center">
+                                            <RadzenColumn Size="4">
+                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
+                                                    <RadzenIcon Icon="highlight_off" />Sin Guardar
+                                                </RadzenText>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="6">
+                                                <RadzenButton class="rz-mb-2" Click=@(()=>guardarList(2)) Text="GUARDAR NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Info" />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    }
+                                    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
+                                                    AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                                                    Data="@listMaterial" ColumnWidth="300rem" Density="Density.Compact">
+
+                                        <Columns>
+                                            <RadzenDataGridColumn Property="materialID" Title="materialID" />
+                                            <RadzenDataGridColumn Property="descripcion" Title="descripcion" />
+                                            <RadzenDataGridColumn Property="unit_price" Title="unit_price" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                }
+                                @* <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            @foreach (DataColumn col in dtStorage.Columns)
+                                            {
+                                                <th>@col.ColumnName</th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (DataRow row in dtStorage.Rows)
+                                        {
+
+                                            <tr>
+                                                @foreach (DataColumn col in dtStorage.Columns)
+                                                {
+
+                                                    <td>@row[col.ColumnName]</td>
+
+                                                }
+                                            </tr>
+
+                                        }
+                                    </tbody>
+                                </table> *@
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                </div>
             }
         }
 
-        //Fin de funcion para administrar excel
+
+        @* *******   LOADING   ******* *@
+        @if (Loading.showLoading)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display: block">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="d-flex align-items-center start">
+                                <div class="spinner-border" aria-hidden="true"></div>
+                                <strong role="status" class="ps-3">@Loading.messageLoading</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* *******   MODAL   ******* *@
+        @if (Modal.showModal)
+        {
+            <div class="modal fade show" style="display:block;" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom-0">
+                            <h1 class="modal-title fs-5">@Modal.TitleModal</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex flex-row mb-3 align-items-center">
+                                @if (Modal.ModalIcon.Length != 0)
+                                {
+                                    <img src="@Modal.ModalIcon" class="img-fluid" alt="Modal Icon" style="max-width: 50px; max-height: 50px;" />
+                                }
+                                <div class="p-2 fs-5">@Modal.MessageModal</div>
+                            </div>
+                            @if (Modal.MessageSecondary.Length != 0)
+                            {
+                                <div class="d-flex flex-row mb-3 align-items-center">
+                                    <div class="p-2 fs-5">@Modal.MessageSecondary</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer border-top-0">
+                            <button type="button" class="btn btn-@(Modal.MessageType.Length != 0 ? Modal.MessageType.ToLower() :"light" )" @onclick="() => Modal.Hide()">ACEPTAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
 
     </Authorized>
 </AuthorizeView>
 
 @code {
+    private List<PeriodoDTO> listPeriodo;
+    [Inject]
+    private InputsDataService InputsDataService { get; set; }
 
+
+    StorageBinDTO storage = new StorageBinDTO();
+    List<StorageBinDTO> listStorage = new List<StorageBinDTO>();
+    MasterDataDTO master = new MasterDataDTO();
+    List<MasterDataDTO> listMaterial = new List<MasterDataDTO>();
+
+    //Funcion para administrar excel
+    DataTable dtStorage = new DataTable();
+    DataTable dtMaterial = new DataTable();
+
+    string month = String.Empty;
+    string year = String.Empty;
+    List<string> dataMonth = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+    List<string> dataYear = new List<string>();
+    int yearNow = DateTime.Now.Year - 2;
+    bool primer_periodo = false;
+
+    bool btnEliminarListStorage = false;
+    bool btnEliminarlistMaterial = false;
+    bool btnGuardarNewListStorage = false;
+    bool btnGuardarNewlistMaterial = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loading.Show();
+
+
+        for(int i = 1; i <= 5; i++)
+        {
+            dataYear.Add((yearNow + i).ToString());
+        }
+
+        await refreshInfo();
+        if (listStorage.Count() != 0)
+        {
+            btnEliminarListStorage = true;
+        }
+        //colocar validacion para listMaterial
+
+        Loading.Hide();
+    }
+
+    protected private async Task refreshInfo()
+    {
+        listPeriodo = await InputsDataService.GetPeriodoAsync();
+        if (listPeriodo.Count() > 0 && listPeriodo[0].activo == 1)
+        {
+            listStorage = await InputsDataService.GetStorageAsync(listPeriodo[0].id);
+        }
+    }
+
+    private async Task insertarPeriodo()
+    {
+        Loading.Show();
+        if(month == "" || year == "")
+        {
+            Loading.Hide();
+            Modal.Show("EXISTEN CAMPOS VACIOS", "ERROR", Message.ERROR, Icon.ERROR);
+            return;
+        }
+        string newPeriodo = month + "-" + year;
+        var periodoSimilar = listPeriodo.Where(item => item.periodo == newPeriodo);
+        if(periodoSimilar.Count() != 0)
+        {
+            Loading.Hide();
+            Modal.Show("YA EXISTE UN PERIODO CON EL MISMO MES Y AÑO", "ERROR", Message.ERROR, Icon.ERROR);
+            return;
+        }
+
+        PeriodoDTO periodo = new PeriodoDTO { periodo = newPeriodo, activo = 1, fecha = DateTime.Now };
+        await InputsDataService.InsertPeriodoAsync(periodo);
+        await refreshInfo();
+        month = String.Empty;
+        year = String.Empty;
+        Loading.Hide();
+        Modal.Show("PERIODO DE INVENTARIO ACTIVO GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+    }
+
+    private async Task actualizarPeriodo()
+    {
+        PeriodoDTO periodo = new PeriodoDTO { id = listPeriodo[0].id, periodo = listPeriodo[0].periodo, activo = 0, fecha = DateTime.Now };
+        await InputsDataService.UpdatePeriodoAsync(periodo);
+        await refreshInfo();
+    }
+
+    private async Task guardarList(int input)
+    {
+        string result = string.Empty;
+        Loading.Show();
+        await Task.Delay(1000);
+        switch (input)
+        {
+            case 1:
+                result = await InputsDataService.InsertStorageAsync(listStorage);
+                if (result == "Error")
+                {
+                    Modal.Show("ERROR AL GUARDAR NUEVO STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                    Loading.Hide();
+                    return;
+                }
+                btnGuardarNewListStorage = false;
+                btnEliminarListStorage = true;
+                Modal.Show("STORAGE BIN GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "STORAGE BIN GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
+                break;
+            case 2:
+                btnGuardarNewlistMaterial = false;
+                btnEliminarlistMaterial = true;
+                Modal.Show("MATERIALS GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "MATERIALS GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
+                break;
+            case 3:
+                break;
+        }
+        await refreshInfo();
+        Loading.Hide();
+        
+    }
+
+    private async Task eliminarList(int input)
+    {
+        string result = string.Empty;
+        List<StorageBinDTO> lStorage = new List<StorageBinDTO>();
+        Loading.Show();
+        await Task.Delay(1000);
+        switch (input)
+        {
+            case 1:
+                result = await InputsDataService.DeleteStorageAsync(listStorage);
+                if (result == "Error")
+                {
+                    Modal.Show("ERROR AL ELIMINAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                    Loading.Hide();
+                    return;
+                }
+                btnEliminarListStorage = false; 
+                listStorage = new List<StorageBinDTO>();
+                Modal.Show("STORAGE BIN ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
+                break;
+            case 2:
+                btnEliminarlistMaterial = false; 
+                listMaterial = new List<MasterDataDTO>(); 
+                Modal.Show("MATERIALS ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
+                break;
+            case 3:
+                break;
+        }
+        Loading.Hide();
+
+    }
+
+
+
+    async Task ExcelMasterData_StorageBin(InputFileChangeEventArgs e)
+    {
+        Loading.Show();
+        dtStorage = new DataTable();
+        var fileStream = e.File.OpenReadStream();
+        var ms = new MemoryStream();
+        await fileStream.CopyToAsync(ms);
+        fileStream.Close();
+        ms.Position = 0;
+
+        ISheet sheet;
+        var xsswb = new XSSFWorkbook(ms);
+
+        sheet = xsswb.GetSheetAt(0);
+        IRow hr = sheet.GetRow(0);
+        var rl = new List<string>();
+
+        int cc = hr.LastCellNum;
+        if(cc != 1)
+        {
+            Modal.Show("EL FORMATO DEL ARCHIVO PARA 'STORAGE BIN' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 1 COLUMNA");
+            Loading.Hide();
+            return;
+        }
+
+        //OBTENER ENCABEZADOS POR COLUMNA 
+        for (var j = 0; j < cc; j++)
+        {
+            ICell cell = hr.GetCell(j);
+            dtStorage.Columns.Add(cell.ToString());
+        }
+
+        //OBTENER DATOS POR FILAS --->
+        for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
+        {
+            var r = sheet.GetRow(j);
+            for (var i = r.FirstCellNum; i < cc; i++)
+            { 
+                rl.Add(r.GetCell(i).ToString());
+            }
+
+            if (rl[0].Length > 10)
+            {
+                listStorage = new List<StorageBinDTO>();
+                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[0]}' EN LA COLUMNA '{dtStorage.Columns[0]}'");
+                Loading.Hide();
+                return;
+            }
+
+            storage = new StorageBinDTO { 
+                storagebin = rl[0], 
+                fkPeriodo = listPeriodo[0].id };
+
+            listStorage.Add(storage);
+            rl.Clear();
+        }
+        btnGuardarNewListStorage = true;
+        Loading.Hide();
+
+    }
+
+    async Task ExcelMasterData_Material(InputFileChangeEventArgs e)
+    {
+        Loading.Show();
+        dtMaterial = new DataTable();
+        var fileStream = e.File.OpenReadStream();
+        var ms = new MemoryStream();
+        await fileStream.CopyToAsync(ms);
+        fileStream.Close();
+        ms.Position = 0;
+
+        ISheet sheet;
+        var xsswb = new XSSFWorkbook(ms);
+
+        sheet = xsswb.GetSheetAt(0);
+        IRow hr = sheet.GetRow(0);
+        var rl = new List<string>();
+
+        int cc = hr.LastCellNum;
+        if (cc != 3)
+        {
+            Modal.Show("EL FORMATO DEL ARCHIVO PARA 'MATERIAL' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 3 COLUMNAS");
+            Loading.Hide();
+            return;
+        }
+
+        //OBTENER ENCABEZADOS POR COLUMNA
+        for (var j = 0; j < cc; j++)
+        {
+            ICell cell = hr.GetCell(j);
+            dtMaterial.Columns.Add(cell.ToString());
+        }
+
+        //OBTENER DATOS POR FILAS --->
+        for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
+        {
+            var r = sheet.GetRow(j);
+            for (var i = r.FirstCellNum; i < cc; i++)
+            {
+                rl.Add(r.GetCell(i).ToString());
+            }
+            bool isNumber = int.TryParse(rl[0], out _);
+            if (!isNumber)
+            {
+                listMaterial = new List<MasterDataDTO>();
+                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[0]}' EN LA COLUMNA '{dtMaterial.Columns[0]}' NO ES NUMERICO");
+                Loading.Hide();
+                return;
+            }
+            double number;
+            bool isDouble = double.TryParse(rl[2], out number);
+            if (!isDouble)
+            {
+                listMaterial = new List<MasterDataDTO>();
+                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[2]}' EN LA COLUMNA '{dtMaterial.Columns[2]}' NO ES NUMERICO");
+                Loading.Hide();
+                return;
+            }
+            master = new MasterDataDTO { 
+                materialID = rl[0], 
+                descripcion = rl[1], 
+                unit_price = double.Parse(rl[2].ToString()),  
+                fkPeriodo = listPeriodo[0].id };
+
+            listMaterial.Add(master);
+            rl.Clear();
+
+        }
+        btnGuardarNewlistMaterial = true;
+        Loading.Hide();
+    }
 }

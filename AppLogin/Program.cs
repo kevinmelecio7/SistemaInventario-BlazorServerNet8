@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Blazored.SessionStorage;
 using Radzen;
+using AppLogin.Components.Modal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,9 +44,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddScoped<IAccount, Account>();
+builder.Services.AddScoped<IUser, User>();
+builder.Services.AddScoped<IInputsData, InputsData>();
+builder.Services.AddScoped<IBitacora, Bitacora>();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7199/") });
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<BitacoraService>();
+builder.Services.AddScoped<InputsDataService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
+builder.Services.AddSingleton<ILoading, Loading>();
+builder.Services.AddSingleton<IModal, Modal>();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddRadzenComponents();
 var app = builder.Build();
