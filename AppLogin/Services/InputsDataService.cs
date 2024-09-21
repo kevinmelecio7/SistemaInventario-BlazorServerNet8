@@ -41,7 +41,6 @@ namespace AppLogin.Services
                 return new List<PeriodoDTO>();
             }
         }
-
         public async Task <string>InsertPeriodoAsync(PeriodoDTO model)
         {
             try
@@ -67,7 +66,6 @@ namespace AppLogin.Services
                 return "Error";
             }
         }
-
         public async Task<string> UpdatePeriodoAsync(PeriodoDTO model)
         {
             try
@@ -116,7 +114,6 @@ namespace AppLogin.Services
                 return new List<StorageBinDTO>();
             }
         }
-
         public async Task<string> InsertStorageAsync(List<StorageBinDTO> list)
         {
             try
@@ -142,7 +139,6 @@ namespace AppLogin.Services
                 return "Error";
             }
         }
-
         public async Task<string> DeleteStorageAsync(List<StorageBinDTO> list)
         {
             try
@@ -176,6 +172,174 @@ namespace AppLogin.Services
             catch (Exception ex)
             {
                 BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsData", accion = "DeleteStorageAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+
+        public async Task<List<MasterDataDTO>> GetMasterDataAsync(int periodo)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/GetMaterial?periodo={periodo}";
+                var response = await httpClient.GetFromJsonAsync<ApiResponse<List<MasterDataDTO>>>(apiURL);
+                if (response != null && response.Mensaje == "ok")
+                {
+                    return response.Response ?? new List<MasterDataDTO>();
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "GetMasterDataAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return new List<MasterDataDTO>();
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "GetMasterDataAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return new List<MasterDataDTO>();
+            }
+        }
+        public async Task<string> InsertMasterDataAsync(List<MasterDataDTO> list)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/InsertMaterial";
+                var response = await httpClient.PostAsJsonAsync(apiURL, list);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "InsertMasterDataAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "InsertMasterDataAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+        public async Task<string> DeleteMasterDataAsync(List<MasterDataDTO> list)
+        {
+            try
+            {
+                var ids = list.Select(x => x.id_material);
+                //var jsonBody = JsonSerializer.Serialize(ids);
+                //Console.WriteLine(jsonBody);
+                var content = new StringContent(JsonSerializer.Serialize(ids), Encoding.UTF8, "application/json");
+
+                string apiURL = $"{BaseUrl}/DeleteMaterial";
+
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(apiURL, UriKind.RelativeOrAbsolute), // Ruta relativa o absoluta según sea necesario
+                    Content = content
+                };
+                var response = await httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsData", accion = "DeleteMasterDataAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsData", accion = "DeleteStorageAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+
+        public async Task<List<InitialLoadDTO>> GetInitialLoadAsync(int periodo)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/GetInitialLoad?periodo={periodo}";
+                var response = await httpClient.GetFromJsonAsync<ApiResponse<List<InitialLoadDTO>>>(apiURL);
+                if (response != null && response.Mensaje == "ok")
+                {
+                    return response.Response ?? new List<InitialLoadDTO>();
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "GetInitialLoadAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return new List<InitialLoadDTO>();
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "GetInitialLoadAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return new List<InitialLoadDTO>();
+            }
+        }
+        public async Task<string> InsertInitialLoadAsync(List<InitialLoadDTO> list)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/InsertInitialLoad";
+                var response = await httpClient.PostAsJsonAsync(apiURL, list);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "InsertInitialLoadAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "InsertInitialLoadAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+        public async Task<string> DeleteInitialLoadAsync(List<InitialLoadDTO> list)
+        {
+            try
+            {
+                var ids = list.Select(x => x.id);
+                //var jsonBody = JsonSerializer.Serialize(ids);
+                //Console.WriteLine(jsonBody);
+                var content = new StringContent(JsonSerializer.Serialize(ids), Encoding.UTF8, "application/json");
+
+                string apiURL = $"{BaseUrl}/DeleteInitialLoad";
+
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(apiURL, UriKind.RelativeOrAbsolute), // Ruta relativa o absoluta según sea necesario
+                    Content = content
+                };
+                var response = await httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsData", accion = "DeleteInitialLoadAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsData", accion = "DeleteInitialLoadAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
                 await bitacoraService.InsertBitacoraAsync(bitacora);
                 return "Error";
             }

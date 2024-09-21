@@ -13,7 +13,15 @@ namespace AppLogin.Repos
         Task<List<StorageBinDTO>> GetStorageAsync(int periodo);
         Task InsertStorageAsync(List<StorageBinDTO> list);
         Task DeleteStorageAsync(List<int> list);
-        
+
+        Task<List<MasterDataDTO>> GetMasterDataAsync(int periodo);
+        Task InsertMasterDataAsync(List<MasterDataDTO> list);
+        Task DeleteMasterDataAsync(List<int> list);
+
+        Task<List<InitialLoadDTO>> GetInitialLoadAsync(int periodo);
+        Task InsertInitialLoadAsync(List<InitialLoadDTO> list);
+        Task DeleteInitialLoadAsync(List<int> list);
+
 
     }
 }

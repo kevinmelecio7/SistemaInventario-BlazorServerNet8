@@ -35,11 +35,11 @@
         <EditForm Model="@Login" OnValidSubmit="LoginClicked">
             <DataAnnotationsValidator />
             <div class="mb-4">
-                <label class="block text-white text-sm font-bold mb-2">Email</label>
+                <label class="block text-white text-sm font-bold mb-2">Numero de Empleado</label>
                 <div class="relative">
                     <InputText @bind-Value="Login.Email"
                                class="w-full p-3 text-white bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-white custom-placeholder"
-                               placeholder="Email" />
+                               placeholder="Numero de Empleado" />
                     <i class="fas fa-envelope absolute right-3 top-2 text-white"></i>
                 </div>
             </div>
@@ -60,9 +60,9 @@
                     Acceder
                 </button>
             </div>
-            <div class="text-center">
+            @* <div class="text-center">
                 <p class="text-white text-sm">No tengo cuenta <a class="font-bold hover:underline" href="register">Crear una</a></p>
-            </div>
+            </div> *@
             <ValidationSummary />
         </EditForm>
     </div>

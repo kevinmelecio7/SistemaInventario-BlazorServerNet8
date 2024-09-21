@@ -1,0 +1,127 @@
+﻿@page "/registro"
+
+<AuthorizeView Roles="User">
+    <NotAuthorized>
+        <NotAuthorizedPage />
+    </NotAuthorized>
+    <Authorized>
+        <h3>Registro</h3>
+        <RadzenRow Gap="2rem" RowGap="2rem" class="rz-m-0 rz-m-md-12">
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Numero de Parte</RadzenText>
+                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Numero de Factura</RadzenText>
+                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Calidad</RadzenText>
+                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Almacen</RadzenText>
+                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Lote</RadzenText>
+                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Fecha y hora de ingreso</RadzenText>
+                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard class="rz-background-color-base-100">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Cantidad</RadzenText>
+                    <RadzenTextBox class="rz-background-color-base-100" Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard class="rz-background-color-base-100">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Origen</RadzenText>
+                    <RadzenTextBox class="rz-background-color-base-100" Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard class="rz-background-color-base-100">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Destino</RadzenText>
+                    <RadzenTextBox class="rz-background-color-base-100" Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
+                </RadzenCard>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenButton Click="ActivaMensajeGuardado" Text="Guardar Registro" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+
+        @* *******   LOADING   ******* *@
+        @if (Loading.showLoading)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display: block">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="d-flex align-items-center start">
+                                <div class="spinner-border" aria-hidden="true"></div>
+                                <strong role="status" class="ps-3">@Loading.messageLoading</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* *******   MODAL   ******* *@
+        @if (Modal.showModal)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display:block;" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom-0">
+                            <h1 class="modal-title fs-5">@Modal.TitleModal</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex flex-row mb-3 align-items-center">
+                                @if (Modal.ModalIcon.Length != 0)
+                                {
+                                    <img src="@Modal.ModalIcon" class="img-fluid" alt="Modal Icon" style="max-width: 50px; max-height: 50px;" />
+                                }
+                                <div class="p-2 fs-5">@Modal.MessageModal</div>
+                            </div>
+                            @if (Modal.MessageSecondary.Length != 0)
+                            {
+                                <div class="d-flex flex-row mb-3 align-items-center">
+                                    <div class="p-2 fs-5">@Modal.MessageSecondary</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer border-top-0">
+                            <button type="button" class="btn btn-@(Modal.MessageType.Length != 0 ? Modal.MessageType.ToLower() :"light" )" @onclick="() => Modal.Hide()">ACEPTAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+    private async Task ActivaMensajeGuardado()
+    {
+        Loading.Show();
+        await Task.Delay(2000);
+        Loading.Hide();
+        Modal.Show("REGISTRO GUARDADO EXITOSAMENTE", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+    }
+}

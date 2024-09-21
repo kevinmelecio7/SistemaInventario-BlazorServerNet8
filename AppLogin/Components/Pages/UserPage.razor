@@ -13,7 +13,7 @@
         <NotAuthorizedPage/>
     </NotAuthorized>
     <Authorized>
-        <h3>Users and Roles</h3>
+        <h3>Usuarios y Roles</h3>
         <br/>
         <span>Tabla para modificar, eliminar y agregar usuarios</span>
 
@@ -21,9 +21,13 @@
 
         @if(users != null)
         {
-            <RadzenDataGrid @ref="usersGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" ColumnWidth="150rem" EditMode="@edittMode"
+            <RadzenDataGrid @ref="usersGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" ColumnWidth="150rem" EditMode="@editMode"
                             Data="users" TItem="UserDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Filter="@Reset">
-                <Columns>
+
+                <HeaderTemplate>
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Agregar Nuevo Usuario" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && usersToInsert.Count() > 0)" />
+                </HeaderTemplate>
+                 <Columns>
                     <RadzenDataGridColumn Property="noEmpleado" Title="No. Empleado" Width="100rem">
                         <EditTemplate Context="user">
                             <RadzenTextBox @bind-Value="user.noEmpleado" Style="width: 100%" aria-label="Default TextBox" />
@@ -83,19 +87,70 @@
                 </tbody>
             </table> *@
         }
+
+        @* *******   LOADING   ******* *@
+        @if (Loading.showLoading)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display: block">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="d-flex align-items-center start">
+                                <div class="spinner-border" aria-hidden="true"></div>
+                                <strong role="status" class="ps-3">@Loading.messageLoading</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* *******   MODAL   ******* *@
+        @if (Modal.showModal)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display:block;" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom-0">
+                            <h1 class="modal-title fs-5">@Modal.TitleModal</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex flex-row mb-3 align-items-center">
+                                @if (Modal.ModalIcon.Length != 0)
+                                {
+                                    <img src="@Modal.ModalIcon" class="img-fluid" alt="Modal Icon" style="max-width: 50px; max-height: 50px;" />
+                                }
+                                <div class="p-2 fs-5">@Modal.MessageModal</div>
+                            </div>
+                            @if (Modal.MessageSecondary.Length != 0)
+                            {
+                                <div class="d-flex flex-row mb-3 align-items-center">
+                                    <div class="p-2 fs-5">@Modal.MessageSecondary</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer border-top-0">
+                            <button type="button" class="btn btn-@(Modal.MessageType.Length != 0 ? Modal.MessageType.ToLower() :"light" )" @onclick="() => Modal.Hide()">ACEPTAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
         
     </Authorized>
 </AuthorizeView>
 
 @code {
-    
-    private List<UserDTO> users;
+    bool newUser = false;
+
     [Inject]
     private UserService userService { get; set; }
 
+    private List<UserDTO> users;
+
     RadzenDataGrid<UserDTO> usersGrid;
 
-    DataGridEditMode edittMode = DataGridEditMode.Single;
+    DataGridEditMode editMode = DataGridEditMode.Single;
 
     List<UserDTO> usersToInsert = new List<UserDTO>();
     List<UserDTO> usersToUpdate = new List<UserDTO>();
@@ -106,32 +161,40 @@
     }
 
 
-
-    void OnUpdateRow(UserDTO user)
-    {
-        // Reset(order);
-
-        // dbContext.Update(order);
-
-        // dbContext.SaveChanges();
-    }
-
-    void OnCreateRow(UserDTO user)
-    {
-        // dbContext.Add(order);
-
-        // dbContext.SaveChanges();
-
-        // ordersToInsert.Remove(order);
-    }
-
     void Reset()
     {
         usersToInsert.Clear();
         usersToUpdate.Clear();
     }
 
+    void Reset(UserDTO user)
+    {
+        usersToInsert.Remove(user);
+        usersToUpdate.Remove(user);
+    }
 
+
+    void OnUpdateRow(UserDTO user)
+    {
+        Reset(user);
+    }
+
+    async Task InsertRow()
+    {
+        if (editMode == DataGridEditMode.Single)
+        {
+            Reset();
+        }
+        var user = new UserDTO();
+        usersToInsert.Add(user);
+        await usersGrid.InsertRow(user);
+        newUser = true;
+    }
+
+    void OnCreateRow(UserDTO user)
+    {
+        usersToInsert.Remove(user);
+    }
 
 
     async Task EditRow(UserDTO user)
@@ -143,40 +206,45 @@
 
     async Task DeleteRow(UserDTO user)
     {
-        // Reset(order);
+        Loading.Show();
+        Reset(user);
 
-        // if (orders.Contains(order))
-        // {
-        //     dbContext.Remove<Order>(order);
-
-        //     dbContext.SaveChanges();
-
-        //     await ordersGrid.Reload();
-        // }
-        // else
-        // {
-        //     ordersGrid.CancelEditRow(order);
-        //     await ordersGrid.Reload();
-        // }
+        //elimnar un nuevo usuario
+        Console.WriteLine("ELIMNAR USUARIO--->");
+        Console.WriteLine($"ID: {user.id} \n Num: {user.noEmpleado} \n Nombre: {user.nombre} \n Rol: {user.rol}");
+        Modal.Show($"SE HA ELIMINADO EL USUARIO CON NUMERO DE EMPLEADO {user.noEmpleado}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+        await CancelEdit(user);
+        Loading.Hide();
     }
 
     async Task SaveRow(UserDTO user)
     {
-        // await ordersGrid.UpdateRow(order);
+        Loading.Show();
+        if (newUser)
+        {
+            //insertar un nuevo usuario
+            Console.WriteLine("AGREGAR USUARIO--->");
+            Console.WriteLine($"Num: {user.noEmpleado} \n Nombre: {user.nombre} \n Rol: {user.rol}");
+            Modal.Show($"SE HA REGISTRADO EL NUEVO USUARIO CON ROL {user.rol}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+        } else
+        {
+            //modificar un usuario existente
+            Console.WriteLine("EDITAR USUARIO--->");
+            Console.WriteLine($"ID: {user.id} \n Num: {user.noEmpleado} \n Nombre: {user.nombre} \n Rol: {user.rol}");
+            Modal.Show($"SE HA MODIFICADO LA INFORMACION PARA EL USUARIO CON NUMERO DE EMPLEADO {user.noEmpleado}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+        }
+        await CancelEdit(user);
+        Loading.Hide();
     }
 
-    void CancelEdit(UserDTO user)
+    async Task CancelEdit(UserDTO user)
     {
-        // Reset(order);
-
-        // ordersGrid.CancelEditRow(order);
-
-        // var orderEntry = dbContext.Entry(order);
-        // if (orderEntry.State == EntityState.Modified)
-        // {
-        //     orderEntry.CurrentValues.SetValues(orderEntry.OriginalValues);
-        //     orderEntry.State = EntityState.Unchanged;
-        // }
+        Loading.Show();
+        Reset(user);
+        usersGrid.CancelEditRow(user);
+        users = await userService.GetUserAsync();
+        newUser = false;
+        Loading.Hide();
     }
 
 
