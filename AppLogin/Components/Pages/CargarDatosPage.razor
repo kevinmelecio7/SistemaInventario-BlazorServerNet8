@@ -105,32 +105,44 @@
                                                 </RadzenText>
                                             </RadzenColumn>
                                             <RadzenColumn Size="6">
-                                                <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(1)) Text="CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
+                                                <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(1)) Text="ELIMINAR  Y CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
                                             </RadzenColumn>
                                         </RadzenRow>
                                     }
-                                    else if (btnGuardarNewListStorage)
-                                    {
-                                        <RadzenRow class="rz-text-align-center">
-                                            <RadzenColumn Size="4">
-                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
-                                                    <RadzenIcon Icon="highlight_off" />Sin Guardar
-                                                </RadzenText>
-                                            </RadzenColumn>
-                                            <RadzenColumn Size="6">
-                                        <RadzenButton class="rz-mb-2" Click=@(()=>guardarList(1)) Text="GUARDAR NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Info" />
-                                            </RadzenColumn>
-                                        </RadzenRow>
-                                        
-                                    }
-                                    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
+                                    <RadzenDataGrid @ref="storagesGrid" AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.SimpleWithMenu" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
                                                     AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                                                    Data="@listStorage" ColumnWidth="300rem" Density="Density.Compact">
+                                                    Data="@listStorage" ColumnWidth="300rem" Density="Density.Compact"
+                                                    EditMode="@editModeStorage" TItem="StorageBinDTO" RowUpdate="@OnUpdateRowStorage" RowCreate="@OnCreateRowStorage" Sort="@Reset" Filter="@Reset">
                                         <HeaderTemplate>
-                                            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Agregar Storage Bin" Disabled="@(btnEliminarListStorage? false : true)" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Agregar Storage Bin" Click="InsertRowStorage" Disabled="@(btnEliminarListStorage? false : true)" />
                                         </HeaderTemplate>
                                         <Columns>
-                                            <RadzenDataGridColumn Property="storagebin" Title="Storage Bin" />
+                                            <RadzenDataGridColumn Property="storagebin" Title="Storage Bin">
+                                                <EditTemplate Context="storage">
+                                                    <RadzenTextBox @bind-Value="storage.storagebin" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa nuevo" />
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn Context="storage" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right" Width="15rem">
+                                                <Template Context="storage">
+                                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                  Click="@(args => EditRowStorage(storage))" @onclick:stopPropagation="true"></RadzenButton>
+                                                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1"
+                                                                  Click="@(args => DeleteRowStorage(storage))" @onclick:stopPropagation="true">
+                                                    </RadzenButton>
+                                                </Template>
+                                                <EditTemplate Context="storage">
+                                                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" aria-label="Save"
+                                                                  Click="@((args) => SaveRowStorage(storage))">
+                                                    </RadzenButton>
+                                                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Cancel"
+                                                                  Click="@((args) => CancelEditStorage(storage))">
+                                                    </RadzenButton>
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete"
+                                                                  Click="@(args => DeleteRowStorage(storage))">
+                                                    </RadzenButton>
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>
+
                                         </Columns>
                                     </RadzenDataGrid>
                                 }
@@ -154,33 +166,67 @@
                                                 </RadzenText>
                                             </RadzenColumn>
                                             <RadzenColumn Size="6">
-                                            <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(2)) Text="CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
+                                            <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(2)) Text="ELIMINAR  Y CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
                                             </RadzenColumn>
                                         </RadzenRow>
                                     }
-                                    else if (btnGuardarNewlistMaterial)
-                                    {
-                                        <RadzenRow class="rz-text-align-center">
-                                            <RadzenColumn Size="4">
-                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
-                                                    <RadzenIcon Icon="highlight_off" />Sin Guardar
-                                                </RadzenText>
-                                            </RadzenColumn>
-                                            <RadzenColumn Size="6">
-                                                <RadzenButton class="rz-mb-2" Click=@(()=>guardarList(2)) Text="GUARDAR NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Info" />
-                                            </RadzenColumn>
-                                        </RadzenRow>
-                                    }
-                                    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
+                                    <RadzenDataGrid @ref="materialsGrid" AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.SimpleWithMenu" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
+                                                    AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                                                    Data="@listMaterial" ColumnWidth="300rem" Density="Density.Compact"
+                                                    EditMode="@editModeMaterial" TItem="MasterDataDTO" RowUpdate="@OnUpdateRowMaterial" RowCreate="@OnCreateRowMaterial" Sort="@Reset" Filter="@Reset">
+                                        <HeaderTemplate>
+                                            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Agregar Material" Click="InsertRowMaterial" Disabled="@(btnEliminarListStorage? false : true)" />
+                                        </HeaderTemplate>
+                                        <Columns>
+                                            <RadzenDataGridColumn Property="materialID" Title="materialID">
+                                                <EditTemplate Context="material">
+                                                    <RadzenTextBox @bind-Value="material.materialID" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa nuevo" />
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn Property="descripcion" Title="descripcion">
+                                                <EditTemplate Context="material">
+                                                    <RadzenTextBox @bind-Value="material.descripcion" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa nuevo" />
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn Property="unit_price" Title="unit_price">
+                                                <EditTemplate Context="material">
+                                                    <RadzenNumeric Min="0" Step="0.5" @bind-Value="material.unit_price" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa nuevo" />
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>                                            
+                                            <RadzenDataGridColumn Context="material" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right" Width="15rem">
+                                                <Template Context="material">
+                                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                  Click="@(args => EditRowMaterial(material))" @onclick:stopPropagation="true"></RadzenButton>
+                                                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1"
+                                                                  Click="@(args => DeleteRowMaterial(material))" @onclick:stopPropagation="true">
+                                                    </RadzenButton>
+                                                </Template>
+                                                <EditTemplate Context="material">
+                                                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" aria-label="Save"
+                                                                  Click="@((args) => SaveRowMaterial(material))">
+                                                    </RadzenButton>
+                                                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Cancel"
+                                                                  Click="@((args) => CancelEditMaterial(material))">
+                                                    </RadzenButton>
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete"
+                                                                  Click="@(args => DeleteRowMaterial(material))">
+                                                    </RadzenButton>
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                    @* <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
                                                     AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
                                                     Data="@listMaterial" ColumnWidth="300rem" Density="Density.Compact">
-
+                                        <HeaderTemplate>
+                                            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Agregar Material" Disabled="@(btnEliminarlistMaterial? false : true)" />
+                                        </HeaderTemplate>
                                         <Columns>
                                             <RadzenDataGridColumn Property="materialID" Title="materialID" />
                                             <RadzenDataGridColumn Property="descripcion" Title="descripcion" />
                                             <RadzenDataGridColumn Property="unit_price" Title="unit_price" />
                                         </Columns>
-                                    </RadzenDataGrid>
+                                    </RadzenDataGrid> *@
                                 } 
                             </RadzenAccordionItem>
                             <RadzenAccordionItem Text="Initial Load" Icon="book" CollapseTitle="Collapse customers." class="rz-background-color-base-200"
@@ -201,20 +247,7 @@
                                                 </RadzenText>
                                             </RadzenColumn>
                                             <RadzenColumn Size="6">
-                                                <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(3)) Text="CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
-                                            </RadzenColumn>
-                                        </RadzenRow>
-                                    }
-                                    else if (btnGuardarNewlistInitial)
-                                    {
-                                        <RadzenRow class="rz-text-align-center">
-                                            <RadzenColumn Size="4">
-                                                <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-display-flex rz-mt-2 rz-my-0">
-                                                    <RadzenIcon Icon="highlight_off" />Sin Guardar
-                                                </RadzenText>
-                                            </RadzenColumn>
-                                            <RadzenColumn Size="6">
-                                                <RadzenButton class="rz-mb-2" Click=@(()=>guardarList(3)) Text="GUARDAR NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Info" />
+                                                <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(3)) Text="ELIMINAR  Y CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
                                             </RadzenColumn>
                                         </RadzenRow>
                                     }
@@ -246,6 +279,7 @@
                         </Items>
                     </RadzenAccordion>
                 </div>
+                
             }
         }
 
@@ -303,6 +337,22 @@
 </AuthorizeView>
 
 @code {
+    RadzenDataGrid<StorageBinDTO> storagesGrid;
+    RadzenDataGrid<MasterDataDTO> materialsGrid;
+
+
+    DataGridEditMode editModeStorage = DataGridEditMode.Single;
+    DataGridEditMode editModeMaterial = DataGridEditMode.Single;
+
+
+    bool newStorage = false;
+    bool newMaterial = false;
+
+
+    List<StorageBinDTO> storagesToInsert = new List<StorageBinDTO>();
+    List<StorageBinDTO> storagesToUpdate = new List<StorageBinDTO>();
+    List<MasterDataDTO> materialsToInsert = new List<MasterDataDTO>();
+    List<MasterDataDTO> materialsToUpdate = new List<MasterDataDTO>();
 
     [Inject]
     private InputsDataService InputsDataService { get; set; }
@@ -329,9 +379,6 @@
     bool btnEliminarListStorage = false;
     bool btnEliminarlistMaterial = false;
     bool btnEliminarlistInitial = false;
-    bool btnGuardarNewListStorage = false;
-    bool btnGuardarNewlistMaterial = false;
-    bool btnGuardarNewlistInitial = false;
 
 
     protected override async Task OnInitializedAsync()
@@ -417,11 +464,11 @@
                 result = await InputsDataService.InsertStorageAsync(listStorage);
                 if (result == "Error")
                 {
+                    await refreshInfo();
                     Modal.Show("ERROR AL GUARDAR NUEVO STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
                 }
-                btnGuardarNewListStorage = false;
                 btnEliminarListStorage = true;
                 Modal.Show("STORAGE BIN GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "STORAGE BIN GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
                 break;
@@ -429,11 +476,11 @@
                 result = await InputsDataService.InsertMasterDataAsync(listMaterial);
                 if (result == "Error")
                 {
+                    await refreshInfo();
                     Modal.Show("ERROR AL GUARDAR NUEVO STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
                 }
-                btnGuardarNewlistMaterial = false;
                 btnEliminarlistMaterial = true;
                 Modal.Show("MATERIALS GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "MATERIALS GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
                 break;
@@ -441,11 +488,11 @@
                 result = await InputsDataService.InsertInitialLoadAsync(listInitial);
                 if (result == "Error")
                 {
+                    await refreshInfo();
                     Modal.Show("ERROR AL GUARDAR NUEVO STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
                 }
-                btnGuardarNewlistInitial = false;
                 btnEliminarlistInitial = true;
                 Modal.Show("INITIAL LOAD GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "INITIAL LOAD GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
                 break;
@@ -458,7 +505,6 @@
     private async Task eliminarList(int input)
     {
         string result = string.Empty;
-        List<StorageBinDTO> lStorage = new List<StorageBinDTO>();
         Loading.Show();
         await Task.Delay(1000);
         switch (input)
@@ -467,6 +513,7 @@
                 result = await InputsDataService.DeleteStorageAsync(listStorage);
                 if (result == "Error")
                 {
+                    await refreshInfo();
                     Modal.Show("ERROR AL ELIMINAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
@@ -479,6 +526,7 @@
                 result = await InputsDataService.DeleteMasterDataAsync(listMaterial);
                 if (result == "Error")
                 {
+                    await refreshInfo();
                     Modal.Show("ERROR AL ELIMINAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
@@ -491,6 +539,7 @@
                 result = await InputsDataService.DeleteInitialLoadAsync(listInitial);
                 if (result == "Error")
                 {
+                    await refreshInfo();
                     Modal.Show("ERROR AL ELIMINAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
@@ -504,7 +553,80 @@
 
     }
 
+    async Task DeleteRowStorage(StorageBinDTO storage)
+    {
+        Loading.Show();
+        Reset(storage);
+        listStorage.Clear();
+        listStorage.Add(storage);
+        await eliminarList(1);
+        await CancelEditStorage(storage);
+        Loading.Hide();
+    }
+    async Task DeleteRowMaterial(MasterDataDTO material)
+    {
+        Loading.Show();
+        Reset(material);
+        listMaterial.Clear();
+        listMaterial.Add(material);
+        await eliminarList(2);
+        await CancelEditMaterial(material);
+        Loading.Hide();
+    }
+    async Task SaveRowStorage(StorageBinDTO storage)
+    {
+        Loading.Show();
+        if (newStorage)
+        {
+            storage.fkPeriodo = listPeriodo[0].id;
+            listStorage.Clear();
+            listStorage.Add(storage);
+            await guardarList(1);
+        }
+        else
+        {
+            string result = await InputsDataService.UpdateStorageAsync(storage);
+            if (result == "Error")
+            {
+                await refreshInfo();
+                Modal.Show("ERROR AL MODIFICAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                Loading.Hide();
+                return;
+            }
+            btnEliminarListStorage = true;
+            Modal.Show($"SE HA MODIFICADO EL STORAGE BIN A {storage.storagebin}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+        }
+        await CancelEditStorage(storage);
+        Loading.Hide();
+    }
+    async Task SaveRowMaterial(MasterDataDTO material)
+    {
+        Loading.Show();
+        if (newMaterial)
+        {
+            material.fkPeriodo = listPeriodo[0].id;
+            listMaterial.Clear();
+            listMaterial.Add(material);
+            await guardarList(2);
+        }
+        else
+        {
+            string result = await InputsDataService.UpdateMasterDataAsync(material);
+            if (result == "Error")
+            {
+                await refreshInfo();
+                Modal.Show("ERROR AL MODIFICAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                Loading.Hide();
+                return;
+            }
+            Modal.Show($"SE HA MODIFICADO EL MATERIAL A {material.descripcion}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+        }
+        await CancelEditMaterial(material);
+        Loading.Hide();
+    }
 
+
+    
 
     async Task ExcelMasterData_StorageBin(InputFileChangeEventArgs e)
     {
@@ -569,7 +691,6 @@
         {
             await guardarList(1);
         }
-        btnGuardarNewListStorage = true;
         Loading.Hide();
 
     }
@@ -641,7 +762,10 @@
             rl.Clear();
 
         }
-        btnGuardarNewlistMaterial = true;
+        if (listMaterial.Count() > 0)
+        {
+            await guardarList(2);
+        }
         Loading.Hide();
     }
 
@@ -753,9 +877,96 @@
             listInitial.Add(initial);
             rl.Clear();
         }
-        btnGuardarNewlistInitial = true;
+        if (listInitial.Count() > 0)
+        {
+            await guardarList(3);
+        }
         Loading.Hide();
     }
 
-    
+    void OnCreateRowStorage(StorageBinDTO storage)
+    {
+        storagesToInsert.Remove(storage);
+    }
+    void OnCreateRowMaterial(MasterDataDTO material)
+    {
+        materialsToInsert.Remove(material);
+    }
+    void Reset(StorageBinDTO storage)
+    {
+        storagesToInsert.Remove(storage);
+        storagesToUpdate.Remove(storage);
+    }
+    void Reset(MasterDataDTO material)
+    {
+        materialsToInsert.Remove(material);
+        materialsToUpdate.Remove(material);
+    }
+    void Reset()
+    {
+        storagesToInsert.Clear();
+        storagesToUpdate.Clear();
+        materialsToInsert.Clear();
+        materialsToUpdate.Clear();
+    }
+    void OnUpdateRowStorage(StorageBinDTO user)
+    {
+        Reset(user);
+    }
+    void OnUpdateRowMaterial(MasterDataDTO user)
+    {
+        Reset(user);
+    }
+    async Task EditRowStorage(StorageBinDTO storage)
+    {
+        Reset();
+        storagesToUpdate.Add(storage);
+        await storagesGrid.EditRow(storage);
+    }
+    async Task EditRowMaterial(MasterDataDTO material)
+    {
+        Reset();
+        materialsToUpdate.Add(material);
+        await materialsGrid.EditRow(material);
+    }
+    async Task CancelEditStorage(StorageBinDTO storage)
+    {
+        Loading.Show();
+        Reset(storage);
+        storagesGrid.CancelEditRow(storage);
+        await refreshInfo();
+        newStorage = false;
+        Loading.Hide();
+    }
+    async Task CancelEditMaterial(MasterDataDTO material)
+    {
+        Loading.Show();
+        Reset(material);
+        materialsGrid.CancelEditRow(material);
+        await refreshInfo();
+        newMaterial = false;
+        Loading.Hide();
+    }
+    async Task InsertRowStorage()
+    {
+        if (editModeStorage == DataGridEditMode.Single)
+        {
+            Reset();
+        }
+        var storage = new StorageBinDTO();
+        storagesToInsert.Add(storage);
+        await storagesGrid.InsertRow(storage);
+        newStorage = true;
+    }
+    async Task InsertRowMaterial()
+    {
+        if (editModeMaterial == DataGridEditMode.Single)
+        {
+            Reset();
+        }
+        var material = new MasterDataDTO();
+        materialsToInsert.Add(material);
+        await materialsGrid.InsertRow(material);
+        newMaterial = true;
+    }
 }

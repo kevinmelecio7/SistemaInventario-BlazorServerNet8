@@ -113,6 +113,24 @@ namespace AppLogin.Controllers
             }
         }
 
+        [HttpPut("UpdateStorage")]
+        [AllowAnonymous]
+        public async Task<ActionResult> UpdateStorage(StorageBinDTO obj)
+        {
+            try
+            {
+                await inputsrepo.UpdateStorageAsync(obj);
+                var response = new ApiResponse<List<StorageBinDTO>> { Mensaje = "ok", Response = null };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
         [HttpDelete("DeleteStorage")]
         [AllowAnonymous]
         public async Task<ActionResult> DeleteStorage([FromBody] List<int> ids)
@@ -156,6 +174,24 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.InsertMasterDataAsync(list);
+                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+        [HttpPut("UpdateMaterial")]
+        [AllowAnonymous]
+        public async Task<ActionResult> UpdateMasterData(MasterDataDTO obj)
+        {
+            try
+            {
+                await inputsrepo.UpdateMasterDataAsync(obj);
                 var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null };
                 return Ok(response);
 

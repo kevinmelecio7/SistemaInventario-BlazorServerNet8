@@ -139,6 +139,31 @@ namespace AppLogin.Services
                 return "Error";
             }
         }
+        public async Task<string> UpdateStorageAsync(StorageBinDTO model)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/UpdateStorage";
+                var response = await httpClient.PutAsJsonAsync(apiURL, model);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateStorageAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateStorageAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
         public async Task<string> DeleteStorageAsync(List<StorageBinDTO> list)
         {
             try
@@ -219,6 +244,31 @@ namespace AppLogin.Services
             catch (Exception ex)
             {
                 BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "InsertMasterDataAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+        public async Task<string> UpdateMasterDataAsync(MasterDataDTO model)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/UpdateMaterial";
+                var response = await httpClient.PutAsJsonAsync(apiURL, model);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateMasterDataAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateMasterDataAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
                 await bitacoraService.InsertBitacoraAsync(bitacora);
                 return "Error";
             }

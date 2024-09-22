@@ -32,7 +32,7 @@ namespace AppLogin.Repos
                                 {
                                     id = Convert.ToInt32(reader["Id"]),
                                     nombre = reader["Name"].ToString(),
-                                    noEmpleado = reader["Email"].ToString(),
+                                    correo = reader["Email"].ToString(),
                                     rol = reader["Role"].ToString(),
                                 });
                             }
@@ -47,6 +47,88 @@ namespace AppLogin.Repos
             }
 
             return dtos;
+        }
+
+        public async Task UpdateUserAsync(UserDTO user)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string sql = "UPDATE Users SET Name = @name, Email = @email, Role = @role WHERE Id = @id;";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@id", user.id);
+                                command.Parameters.AddWithValue("@name", user.nombre);
+                                command.Parameters.AddWithValue("@email", user.correo);
+                                command.Parameters.AddWithValue("@role", user.rol);
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al actualizar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
+        }
+        public async Task DeleteUserAsync(UserDTO user)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string sql = "DELETE FROM Users WHERE Id = @id;";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@id", user.id);
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al eliminar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
         }
     }
 }

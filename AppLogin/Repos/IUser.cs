@@ -5,5 +5,7 @@ namespace AppLogin.Repos
     public interface IUser
     {
         Task<List<UserDTO>> GetUsersAsync();
+        Task UpdateUserAsync(UserDTO user);
+        Task DeleteUserAsync(UserDTO user);
     }
 }

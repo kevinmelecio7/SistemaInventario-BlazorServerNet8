@@ -177,6 +177,47 @@ namespace AppLogin.Repos
                 throw new Exception("Error: ", ex);
             }
         }
+        public async Task UpdateStorageAsync(StorageBinDTO obj)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string sql = "UPDATE data_storage SET storagebin = @storagebin, fkPeriodo = @fkperiodo WHERE id_storage = @id_storage;";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@id_storage", obj.id);
+                                command.Parameters.AddWithValue("@storagebin", obj.storagebin);
+                                command.Parameters.AddWithValue("@fkperiodo", obj.fkPeriodo);
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al actualizar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
+        }
         public async Task DeleteStorageAsync(List<int> list)
         {
             string sql = string.Empty;
@@ -287,6 +328,49 @@ namespace AppLogin.Repos
                                     await command.ExecuteNonQueryAsync();
                                 }
                             }
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al insertar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
+        }
+        public async Task UpdateMasterDataAsync(MasterDataDTO obj)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string sql = "UPDATE data_materials SET materialID = @materialID, descripcion = @descripcion, unit_price = @unit_price, fkPeriodo = @fkperiodo WHERE id_material = @id_material;";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@id_material", obj.id_material);
+                                command.Parameters.AddWithValue("@materialID", obj.materialID);
+                                command.Parameters.AddWithValue("@descripcion", obj.descripcion);
+                                command.Parameters.AddWithValue("@unit_price", obj.unit_price);
+                                command.Parameters.AddWithValue("@fkperiodo", obj.fkPeriodo);
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+
                             transaction.Commit();
                         }
                         catch (Exception ex)
