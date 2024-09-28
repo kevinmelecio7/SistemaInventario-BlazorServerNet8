@@ -6,63 +6,80 @@
     </NotAuthorized>
     <Authorized>
         <h3>Registro</h3>
-        <RadzenRow Gap="2rem" RowGap="2rem" class="rz-m-0 rz-m-md-12">
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard>
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Numero de Parte</RadzenText>
-                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard>
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Numero de Factura</RadzenText>
-                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard>
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Calidad</RadzenText>
-                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard>
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Almacen</RadzenText>
-                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard>
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Lote</RadzenText>
-                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard>
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Fecha y hora de ingreso</RadzenText>
-                    <RadzenTextBox Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard class="rz-background-color-base-100">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Cantidad</RadzenText>
-                    <RadzenTextBox class="rz-background-color-base-100" Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard class="rz-background-color-base-100">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Origen</RadzenText>
-                    <RadzenTextBox class="rz-background-color-base-100" Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenCard class="rz-background-color-base-100">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Destino</RadzenText>
-                    <RadzenTextBox class="rz-background-color-base-100" Change="(()=>{})" Style="width: 100%" aria-label="Default TextBox" />
-                </RadzenCard>
-            </RadzenColumn>
-        </RadzenRow>
-        <RadzenButton Click="ActivaMensajeGuardado" Text="Guardar Registro" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+        <RadzenStack>
+            <RadzenFieldset Text="Ingresa valores" class="rz-background-color-base-100">
+                <RadzenStack  Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Numero de Parte </RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="5">
+                            <RadzenTextBox @bind-Value="materialNPTXT" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" />
+                            @* <RadzenTextBox @bind-Value="materialNPTXT" @onkeydown=@(e => enter(e, 1)) Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" /> *@
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenText TextStyle="TextStyle.Body1" TextAlign="TextAlign.Left" class="rz-pt-2"> @descripcion </RadzenText>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Storage Bin </RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="5">
+                            <RadzenTextBox @bind-Value="storageTXT" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" />
+                            @* <RadzenTextBox @bind-Value="storageTXT" @onkeydown=@(e => enter(e, 2)) Disabled="enableStorage" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" /> *@
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+        </RadzenStack>
+
+        
+        @* COLOCAR CONIDCION, SI NO EXISTE ALGUNO DE LOS DOS, MOSTRAR BOTON DE CAPTURA ADICIONAL*@
+        @if (enableAdicional)
+        {
+            <br />
+            <RadzenRow AlignItems="AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Body2" class="rz-pt-2 rz-color-danger"> Algun valor no existe en base de datos. ¿Deseas realizar la captura adicional?  </RadzenText>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenButton Click="()=>{newRegister = true;enableAdicional = false; enableGuardado = true;}" Text="Captura Adicional" Icon="add_circle" ButtonStyle="ButtonStyle.Warning" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenButton Click="()=>refresh()" Text="Realizar nueva captura" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
+                </RadzenColumn>
+            </RadzenRow>
+        }
+        
+        
+        
+
+        @* COLOCAR CONDICION, SI EXISTE AMBOS VALORES, MOSTRAR CANTIDAD*@
+        @if (enableGuardado)
+        {
+            <br />
+            <br />
+            <RadzenStack>
+                <RadzenFieldset Text="Ingresa Cantidad" class="rz-background-color-base-100">
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="3">
+                                <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Cantidad </RadzenText>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="5">
+                                <RadzenNumeric TValue="int" Min=0 Value=@cantidad Change=@(args => cantidad = args) InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "enter value" }})" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+            <br />
+            <RadzenButton Click="ActivaMensajeGuardado" Text="Guardar" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Click="()=>refresh()" Text="Realizar nueva captura" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
+        }
+        
+
 
         @* *******   LOADING   ******* *@
         @if (Loading.showLoading)
@@ -117,11 +134,123 @@
 
 
 @code {
+    private RadzenTextBox materialTextBox;
+
+    string materialNPTXT = "";
+    string descripcion = "";
+    string storageTXT = "";
+    int cantidad = 0;
+
+    bool enableMaterial = false;
+    bool enableStorage = false;
+    bool enableAdicional = false;
+    bool enableGuardado = false;
+
+    bool newRegister = false;
+
+    bool materialValid = false;
+    bool storageValid = false;
+
+
+    [Inject]
+    private InputsDataService InputsDataService { get; set; }
+
+    private List<PeriodoDTO> listPeriodo = new List<PeriodoDTO>();
+    List<StorageBinDTO> listStorage = new List<StorageBinDTO>();
+    StorageBinDTO storage = new StorageBinDTO();
+    List<MasterDataDTO> listMaterial = new List<MasterDataDTO>();
+    MasterDataDTO material = new MasterDataDTO();
+    List<InitialLoadDTO> listInitial = new List<InitialLoadDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        listPeriodo = await InputsDataService.GetPeriodoAsync();
+        if (listPeriodo.Count() > 0 && listPeriodo[0].activo == 1)
+        {
+            listStorage = await InputsDataService.GetStorageAsync(listPeriodo[0].id);
+            listMaterial = await InputsDataService.GetMasterDataAsync(listPeriodo[0].id);
+            listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);
+        } else
+        {
+            Modal.Show("EL ADMINISTRADOR AUN NO HA ACTIVDADO EL PERIODO", "PRECAUCION", Message.WARNING, Icon.WARNING, "RECARGE LA PAGINA CUANDO SE LE NOTIFIQUE EL CAMBIO DE PERIODO");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await materialTextBox.FocusAsync();
+        }
+    }
+
+
+
+    private async Task enter(KeyboardEventArgs e, int textbox)
+    {
+        if (e.Key == "Tab" || e.Key == "Enter")
+        {
+            switch (textbox)
+            {
+                case 1:
+                    material = listMaterial.Where(item => item.materialID == materialNPTXT).FirstOrDefault()!;
+                    if(material is not null)
+                    {
+                        materialValid = true;
+                        descripcion = material.descripcion!;
+                    }
+                    if (storageTXT != "" && materialNPTXT != "")
+                        checkTextBox();
+                    // Console.WriteLine($"Se registro '{materialNPTXT}' en el textbox 1");
+                    break;
+
+                case 2:
+                    storage = listStorage.Where(item => item.storagebin == storageTXT).FirstOrDefault()!;
+                    if (storage is not null)
+                    {
+                        storageValid = true;
+                    }
+                    if (storageTXT != "" && materialNPTXT != "")
+                        checkTextBox();
+                    // Console.WriteLine($"Se registro '{storageTXT}' en el textbox 2");
+                    break;
+            }
+        }
+    }
+
+    private void checkTextBox()
+    {
+        //se hace otra validacion ya que los campos hasta este momento aun son modificables
+        if (materialNPTXT == "" && storageTXT == "")
+        {
+            Modal.Show("EXISTEN CAMPOS VACIOS", "PRECAUCION", Message.WARNING, Icon.WARNING);
+            return;
+        } 
+        material = listMaterial.Where(item => item.materialID == materialNPTXT).FirstOrDefault()!;
+        storage = listStorage.Where(item => item.storagebin == storageTXT).FirstOrDefault()!;
+        if(material is null || storage is null)
+        {
+            enableAdicional = true;
+        } else
+        {
+            enableGuardado = true;
+        }
+        enableMaterial = true;
+        enableStorage = true;
+    }
+
+    private void refresh()
+    {
+        NavManager.NavigateTo("home");
+        NavManager.NavigateTo("registro");
+    }
+
     private async Task ActivaMensajeGuardado()
     {
         Loading.Show();
         await Task.Delay(2000);
         Loading.Hide();
         Modal.Show("REGISTRO GUARDADO EXITOSAMENTE", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+        refresh();
     }
 }

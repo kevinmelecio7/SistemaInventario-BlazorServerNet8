@@ -561,6 +561,7 @@
         listStorage.Add(storage);
         await eliminarList(1);
         await CancelEditStorage(storage);
+        btnEliminarListStorage = true;
         Loading.Hide();
     }
     async Task DeleteRowMaterial(MasterDataDTO material)
@@ -571,11 +572,19 @@
         listMaterial.Add(material);
         await eliminarList(2);
         await CancelEditMaterial(material);
+        btnEliminarlistMaterial = true;
         Loading.Hide();
     }
     async Task SaveRowStorage(StorageBinDTO storage)
     {
         Loading.Show();
+        if (storage.storagebin is null || storage.storagebin.Length > 10 || storage.storagebin == "")
+        {
+            Modal.Show("DATO INVALIDO, INGRESA UN VALOR VALIDO", "ERROR", Message.ERROR, Icon.ERROR);
+            Loading.Hide();
+            return;
+        }
+
         if (newStorage)
         {
             storage.fkPeriodo = listPeriodo[0].id;
@@ -602,6 +611,22 @@
     async Task SaveRowMaterial(MasterDataDTO material)
     {
         Loading.Show();
+        if (material.materialID is null || material.descripcion is null ||
+            material.materialID == "" || material.descripcion == "" )
+        {
+            Modal.Show("DATO INVALIDO, VERIFICA QUE NINGUN CAMPO ESTE VACIO", "ERROR", Message.ERROR, Icon.ERROR);
+            Loading.Hide();
+            return;
+        }
+        bool isNumber = int.TryParse(material.materialID, out _);
+        if (!isNumber)
+        {
+            Modal.Show("DATO INVALIDO EN MATERIALID, INGRESA UN VALOR VALIDO", "ERROR", Message.ERROR, Icon.ERROR);
+            Loading.Hide();
+            return;
+        }
+
+
         if (newMaterial)
         {
             material.fkPeriodo = listPeriodo[0].id;

@@ -55,6 +55,24 @@ namespace AppLogin.Controllers
             }
         }
 
+        [HttpPut("UpdatePasswordUsers")]
+        [AllowAnonymous]
+        public async Task<ActionResult> UpdatePasswordUser(UserDTO user)
+        {
+            try
+            {
+                await userrepo.UpdatePasswordUserAsync(user);
+                var response = new ApiResponse<List<UserDTO>> { Mensaje = "ok", Response = null };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<UserDTO>> { Mensaje = ex.Message, Response = null };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
         [HttpDelete("DeleteUsers")]
         [AllowAnonymous]
         public async Task<ActionResult> DeleteUserAsync(UserDTO user)

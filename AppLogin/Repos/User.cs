@@ -48,7 +48,6 @@ namespace AppLogin.Repos
 
             return dtos;
         }
-
         public async Task UpdateUserAsync(UserDTO user)
         {
             try
@@ -68,6 +67,47 @@ namespace AppLogin.Repos
                                 command.Parameters.AddWithValue("@name", user.nombre);
                                 command.Parameters.AddWithValue("@email", user.correo);
                                 command.Parameters.AddWithValue("@role", user.rol);
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al actualizar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
+        }
+        public async Task UpdatePasswordUserAsync(UserDTO user)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string sql = "UPDATE Users SET Password = @password WHERE Id = @id;";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                string password = BCrypt.Net.BCrypt.HashPassword(user.correo);
+                                command.Parameters.AddWithValue("@id", user.id);
+                                command.Parameters.AddWithValue("@password", password);
 
                                 await command.ExecuteNonQueryAsync();
                             }
@@ -130,5 +170,6 @@ namespace AppLogin.Repos
                 throw new Exception("Error: ", ex);
             }
         }
+
     }
 }

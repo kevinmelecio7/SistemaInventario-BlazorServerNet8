@@ -64,6 +64,32 @@ namespace AppLogin.Services
             }
         }
 
+        public async Task<string> UpdatePasswordUserAsync(UserDTO model)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/UpdatePasswordUsers";
+                var response = await httpClient.PutAsJsonAsync(apiURL, model);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "UserService", accion = "UpdatePasswordUserAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "UserService", accion = "UpdatePasswordUserAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+
         public async Task<string> DeleteUserAsync(UserDTO model)
         {
             try
