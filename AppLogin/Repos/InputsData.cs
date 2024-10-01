@@ -1,6 +1,7 @@
 ﻿using AppLogin.DTOs;
 using AppLogin.DTOs.Excel;
 using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
 
 namespace AppLogin.Repos
 {
@@ -482,6 +483,8 @@ namespace AppLogin.Repos
                                     consignment_value = double.Parse(reader["consignment_value"].ToString()),
                                     execution_date = reader["execution_date"].ToString(),
                                     fkPeriodo = Convert.ToInt32(reader["fkPeriodo"]),
+                                    folio = reader["folio"].ToString(),
+                                    estado = reader["estado"].ToString(),
                                 });
                             }
                         }
@@ -603,6 +606,60 @@ namespace AppLogin.Repos
                 throw new Exception("Error: ", ex);
             }
 
+        }
+        public async Task UpdateInitialLoadFolio()
+        {
+            List<InitialLoadDTO> listInitial = new List<InitialLoadDTO>();
+            List<PeriodoDTO> listPeriodo = new List<PeriodoDTO>();
+            
+            listPeriodo = await GetPeriodoAsync();
+            var periodoActual = listPeriodo.Where(item => item.activo == 1).FirstOrDefault();
+            string stringPeriodo = periodoActual!.periodo!.Replace("-", "");
+            listInitial = await GetInitialLoadAsync(periodoActual.id);
+            string folio = string.Empty;
+            string sql = string.Empty;
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            sql = "UPDATE saldos_iniciales SET folio = @folio, estado = @estado WHERE id_saldos = @id;";
+                            foreach (var obj in listInitial)
+                            {
+                                folio = "R" + stringPeriodo + "-" + obj.id;
+                                //Console.WriteLine(folio + "\n");
+                                using (var command = new SqlCommand(sql, connection, transaction))
+                                {
+                                    command.Parameters.AddWithValue("@id", obj.id);
+                                    command.Parameters.AddWithValue("@folio", folio);
+                                    command.Parameters.AddWithValue("@estado", "PENDIENTE");
+
+                                    await command.ExecuteNonQueryAsync();
+                                }
+                            }
+                            
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al eliminar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
         }
     }
 }

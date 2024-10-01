@@ -246,9 +246,12 @@
                                                     <RadzenIcon Icon="check_circle" />Informacion Almacenada
                                                 </RadzenText>
                                             </RadzenColumn>
-                                            <RadzenColumn Size="6">
-                                                <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(3)) Text="ELIMINAR  Y CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
-                                            </RadzenColumn>
+                                            @if(sinFolios){
+                                                <RadzenColumn Size="6">
+                                                    <RadzenButton class="rz-mb-2" Click=@(()=>eliminarList(3)) Text="ELIMINAR  Y CARGAR UN NUEVO ARCHIVO" ButtonStyle="ButtonStyle.Danger" />
+                                                </RadzenColumn>
+                                            }
+                                            
                                         </RadzenRow>
                                     }
                                     <div style="width:auto; overflow-x: auto;">
@@ -380,6 +383,8 @@
     bool btnEliminarlistMaterial = false;
     bool btnEliminarlistInitial = false;
 
+    bool sinFolios = false;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -416,6 +421,13 @@
             listStorage = await InputsDataService.GetStorageAsync(listPeriodo[0].id);
             listMaterial = await InputsDataService.GetMasterDataAsync(listPeriodo[0].id);
             listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);  
+        }
+        if (listInitial[0].folio is null || listInitial[0].folio == "")
+        {
+            sinFolios = true;
+        } else
+        {
+            sinFolios = false;
         }
     }
 
@@ -536,18 +548,28 @@
                 Modal.Show("MATERIALS ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
                 break;
             case 3:
-                result = await InputsDataService.DeleteInitialLoadAsync(listInitial);
-                if (result == "Error")
+                await refreshInfo();
+                if (listInitial[0].folio is null || listInitial[0].folio == "")
                 {
-                    await refreshInfo();
-                    Modal.Show("ERROR AL ELIMINAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
-                    Loading.Hide();
-                    return;
+                    result = await InputsDataService.DeleteInitialLoadAsync(listInitial);
+                    if (result == "Error")
+                    {
+                        await refreshInfo();
+                        Modal.Show("ERROR AL ELIMINAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                        Loading.Hide();
+                        return;
+                    }
+                    btnEliminarlistInitial = false;
+                    listInitial = new List<InitialLoadDTO>();
+                    Modal.Show("INITIAL LOAD ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
+                    
+                } else
+                {
+                    sinFolios = false;
+                    Modal.Show("YA SE HAN REALIZADO REGISTROS Y POR ELLO, YA NO ES POSIBLE ELIMINAR Y CARGAR UN NUEVO ARCHIVO", "ADVERTENCIA", Message.WARNING, Icon.WARNING);
                 }
-                btnEliminarlistInitial = false;
-                listInitial = new List<InitialLoadDTO>();
-                Modal.Show("INITIAL LOAD ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
                 break;
+
         }
         Loading.Hide();
 

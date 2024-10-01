@@ -25,6 +25,8 @@
         public double consignment_value { get; set; }
         public string? execution_date { get; set; }
         public int fkPeriodo { get; set; }
+        public string? folio {  get; set; }
+        public string? estado {  get; set; }
 
     }
 }

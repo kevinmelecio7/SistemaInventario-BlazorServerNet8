@@ -238,6 +238,7 @@ namespace AppLogin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse); ;
             }
         }
+
         [HttpPost("InsertInitialLoad")]
         [AllowAnonymous]
         public async Task<ActionResult> InsertInitialLoad(List<InitialLoadDTO> list)
@@ -255,6 +256,7 @@ namespace AppLogin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
+
         [HttpDelete("DeleteInitialLoad")]
         [AllowAnonymous]
         public async Task<ActionResult> DeleteInitialLoad([FromBody] List<int> ids)
@@ -262,6 +264,24 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.DeleteInitialLoadAsync(ids);
+                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+        [HttpPut("UpdateInitialLoadFolio")]
+        [AllowAnonymous]
+        public async Task<ActionResult> UpdateInitialLoadFolio()
+        {
+            try
+            {
+                await inputsrepo.UpdateInitialLoadFolio();
                 var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null };
                 return Ok(response);
 

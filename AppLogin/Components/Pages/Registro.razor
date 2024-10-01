@@ -14,8 +14,7 @@
                             <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Numero de Parte </RadzenText>
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="5">
-                            <RadzenTextBox @bind-Value="materialNPTXT" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" />
-                            @* <RadzenTextBox @bind-Value="materialNPTXT" @onkeydown=@(e => enter(e, 1)) Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" /> *@
+                            <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" />
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenText TextStyle="TextStyle.Body1" TextAlign="TextAlign.Left" class="rz-pt-2"> @descripcion </RadzenText>
@@ -26,8 +25,7 @@
                             <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Storage Bin </RadzenText>
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="5">
-                            <RadzenTextBox @bind-Value="storageTXT" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" />
-                            @* <RadzenTextBox @bind-Value="storageTXT" @onkeydown=@(e => enter(e, 2)) Disabled="enableStorage" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" /> *@
+                            <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" />
                         </RadzenColumn>
                     </RadzenRow>
                 </RadzenStack>
@@ -41,23 +39,33 @@
             <br />
             <RadzenRow AlignItems="AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="4">
-                    <RadzenText TextStyle="TextStyle.Body2" class="rz-pt-2 rz-color-danger"> Algun valor no existe en base de datos. ¿Deseas realizar la captura adicional?  </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2" class="rz-pt-2 rz-color-danger"> Los valores no existen en el reporte inicial o ya fueron registrados anteriormente. ¿Deseas realizar la captura adicional?  </RadzenText>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="3">
-                    <RadzenButton Click="()=>{newRegister = true;enableAdicional = false; enableGuardado = true;}" Text="Captura Adicional" Icon="add_circle" ButtonStyle="ButtonStyle.Warning" />
+                    <RadzenButton Click="()=>modeCapturaAdicional()" Text="Captura Adicional" Icon="add_circle" ButtonStyle="ButtonStyle.Warning" />
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="4">
-                    <RadzenButton Click="()=>refresh()" Text="Realizar nueva captura" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
+                    <RadzenButton Click="()=>refresh()" Text="Intentar de nuevo" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
                 </RadzenColumn>
             </RadzenRow>
         }
-        
+
+        @if (capturaAdicional)
+        {
+            <RadzenRow AlignItems="AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Body1" class="rz-pt-2 rz-color-info"> Modo Captura Adicional  </RadzenText>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+
         
         
 
         @* COLOCAR CONDICION, SI EXISTE AMBOS VALORES, MOSTRAR CANTIDAD*@
         @if (enableGuardado)
         {
+            
             <br />
             <br />
             <RadzenStack>
@@ -75,10 +83,37 @@
                 </RadzenFieldset>
             </RadzenStack>
             <br />
-            <RadzenButton Click="ActivaMensajeGuardado" Text="Guardar" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Click="()=>BuscaFolio()" Text="Guardar" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
             <RadzenButton Click="()=>refresh()" Text="Realizar nueva captura" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
         }
         
+        @* GUARDAR REGISTRO *@
+        @if (seguroGuardar)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display:block;" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom-0">
+                            <h1 class="modal-title fs-5"><b>¿Estas seguro de guardar?</b></h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex flex-row mb-3 align-items-center">
+
+                                <img src="@Icon.INFORMATION" class="img-fluid" alt="Modal Icon" style="max-width: 50px; max-height: 50px;" />
+
+                                <div class="p-2 fs-5">
+                                    Se registrará <b>@cantidad PZ</b> del material <b>@descripcion</b> en el storage bin <b>@storageTXT</b>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top-0">
+                            <button type="button" class="btn btn-danger" @onclick="() => {seguroGuardar = false; folio = string.Empty;}">CANCELAR</button>
+                            <button type="button" class="btn btn-primary" @onclick="() => Guardado()">ACEPTAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
 
 
         @* *******   LOADING   ******* *@
@@ -140,39 +175,74 @@
     string descripcion = "";
     string storageTXT = "";
     int cantidad = 0;
+    string folio = string.Empty;
 
     bool enableMaterial = false;
     bool enableStorage = false;
     bool enableAdicional = false;
     bool enableGuardado = false;
+    bool seguroGuardar = false;
 
-    bool newRegister = false;
 
-    bool materialValid = false;
-    bool storageValid = false;
+    bool capturaAdicional = false;
+
+    // bool materialValid = false;
+    // bool storageValid = false;
 
 
     [Inject]
     private InputsDataService InputsDataService { get; set; }
 
     private List<PeriodoDTO> listPeriodo = new List<PeriodoDTO>();
+    List<InitialLoadDTO> listInitial = new List<InitialLoadDTO>();
+    List<InitialLoadDTO> listInitialResultado = new List<InitialLoadDTO>();
+
     List<StorageBinDTO> listStorage = new List<StorageBinDTO>();
     StorageBinDTO storage = new StorageBinDTO();
     List<MasterDataDTO> listMaterial = new List<MasterDataDTO>();
     MasterDataDTO material = new MasterDataDTO();
-    List<InitialLoadDTO> listInitial = new List<InitialLoadDTO>();
+
+    public class InitialMaterial
+    {
+        public string? MaterialNumber { get; set; }
+        public string? MaterialDescription { get; set; }
+    }
+
+    public class InitialStorage
+    {
+        public string? StorageBin { get; set; }
+    }
+
+    List<InitialMaterial> listInitialMaterial = new List<InitialMaterial>();
+    List<InitialStorage> listInitialStorage= new List<InitialStorage>();
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
         listPeriodo = await InputsDataService.GetPeriodoAsync();
         if (listPeriodo.Count() > 0 && listPeriodo[0].activo == 1)
         {
+            listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);
+            listInitial = listInitial.Where(item => item.estado != "CONTADO").ToList();
+            listInitialMaterial = listInitial.GroupBy(x => new { x.material_number, x.material_description })
+                                                    .Select(y => new InitialMaterial
+                                                    {
+                                                        MaterialNumber = y.Key.material_number,
+                                                        MaterialDescription = y.Key.material_description
+                                                    }).ToList();
+            listInitialStorage = listInitial.GroupBy(x => new { x.storage_bin })
+                                                    .Select(y => new InitialStorage
+                                                    {
+                                                        StorageBin = y.Key.storage_bin
+                                                    }).ToList();
             listStorage = await InputsDataService.GetStorageAsync(listPeriodo[0].id);
             listMaterial = await InputsDataService.GetMasterDataAsync(listPeriodo[0].id);
-            listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);
         } else
         {
             Modal.Show("EL ADMINISTRADOR AUN NO HA ACTIVDADO EL PERIODO", "PRECAUCION", Message.WARNING, Icon.WARNING, "RECARGE LA PAGINA CUANDO SE LE NOTIFIQUE EL CAMBIO DE PERIODO");
+            NavManager.NavigateTo("home");
         }
     }
 
@@ -183,6 +253,11 @@
             await materialTextBox.FocusAsync();
         }
     }
+    // if (materialNPTXT == "" && textbox == 1)
+    //     {
+    //         await enter(e, 1);
+    // }
+    //     if (materialNPTXT == "" || storageTXT == "")
 
 
 
@@ -190,53 +265,186 @@
     {
         if (e.Key == "Tab" || e.Key == "Enter")
         {
+
+            validarCamposTexto(textbox);
+        }
+    }
+
+    private void validarCamposTexto(int textbox)
+    {
+        if (capturaAdicional == false)
+        {
+
             switch (textbox)
             {
                 case 1:
-                    material = listMaterial.Where(item => item.materialID == materialNPTXT).FirstOrDefault()!;
-                    if(material is not null)
+
+                    bool validarExisteMaterial = listInitialMaterial.Any(item => item.MaterialNumber!.Equals(materialNPTXT, StringComparison.OrdinalIgnoreCase));
+                    if (validarExisteMaterial)
                     {
-                        materialValid = true;
-                        descripcion = material.descripcion!;
+                        var material = listInitialMaterial.Where(x => x.MaterialNumber == materialNPTXT).FirstOrDefault();
+                        descripcion = material!.MaterialDescription!;
                     }
                     if (storageTXT != "" && materialNPTXT != "")
-                        checkTextBox();
+                        validarInitial();
                     // Console.WriteLine($"Se registro '{materialNPTXT}' en el textbox 1");
                     break;
 
                 case 2:
-                    storage = listStorage.Where(item => item.storagebin == storageTXT).FirstOrDefault()!;
-                    if (storage is not null)
+                    if (storageTXT != "" && materialNPTXT != "")
+                        validarInitial();
+                    // Console.WriteLine($"Se registro '{storageTXT}' en el textbox 2");
+                    break;
+            }
+        } else {
+            switch (textbox)
+            {
+                case 1:
+                    material = listMaterial.Where(item => item.materialID == materialNPTXT).FirstOrDefault()!;
+                    if (material is not null)
                     {
-                        storageValid = true;
+                        descripcion = material.descripcion!;
+                    } else
+                    {
+
+                        Modal.Show($"EL NUMERO DE PARTE '{materialNPTXT}' NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING);
+                        materialNPTXT = "";
+                        return;
                     }
                     if (storageTXT != "" && materialNPTXT != "")
-                        checkTextBox();
+                    {
+                        validarInitial();
+                    }
+                    break;
+
+
+                case 2:
+                    storage = listStorage.Where(item => item.storagebin == storageTXT).FirstOrDefault()!;
+                    if(storage is null)
+                    {
+
+                        Modal.Show($"EL STORAGE BIN '{storageTXT}' NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING);
+                        storageTXT = "";
+                        return;
+                    }
+                    if (storageTXT != "" && materialNPTXT != "")
+                    {
+                        validarInitial();
+                    }
                     // Console.WriteLine($"Se registro '{storageTXT}' en el textbox 2");
                     break;
             }
         }
     }
 
-    private void checkTextBox()
+    private void modeCapturaAdicional()
     {
-        //se hace otra validacion ya que los campos hasta este momento aun son modificables
-        if (materialNPTXT == "" && storageTXT == "")
-        {
-            Modal.Show("EXISTEN CAMPOS VACIOS", "PRECAUCION", Message.WARNING, Icon.WARNING);
-            return;
-        } 
+        capturaAdicional = true;
+        enableAdicional = false;
         material = listMaterial.Where(item => item.materialID == materialNPTXT).FirstOrDefault()!;
         storage = listStorage.Where(item => item.storagebin == storageTXT).FirstOrDefault()!;
-        if(material is null || storage is null)
+        if (material is null && storage is null)
         {
-            enableAdicional = true;
+            materialNPTXT = "";
+            storageTXT = "";
+            Modal.Show("NUMERO DE PARTE Y STORAGE BIN NO EXISTEN", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO NUMERO DE PARTE Y STORAGE BIN");
+            return;
+        }
+        if(material is null)
+        {
+            materialNPTXT = "";
+            Modal.Show("NUMERO DE PARTE NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO NUMERO DE PARTE");
+            return;
+        }
+        if (storage is null)
+        {
+            storageTXT = "";
+            Modal.Show("STORAGE BIN NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO STORAGE BIN");
+            return;
+        }
+        validarCamposTexto(2);
+
+        // enableGuardado = true;
+    }
+
+    private void validarInitial()
+    {
+        //se hace otra validacion ya que los campos hasta este momento aun son modificables
+        if (capturaAdicional == false)
+        {
+            if (materialNPTXT == "" && storageTXT == "")
+            {
+                Modal.Show("EXISTEN CAMPOS VACIOS", "PRECAUCION", Message.WARNING, Icon.WARNING);
+                return;
+            }
+
+            listInitialResultado = listInitial.Where(x => x.storage_bin == storageTXT).Where(y => y.material_number == materialNPTXT).ToList();
+
+            if (listInitialResultado.Count() == 0)
+            {
+                enableAdicional = true;
+            }
+            else
+            {
+                enableGuardado = true;
+
+                enableMaterial = true;
+                enableStorage = true;
+            }
         } else
         {
+            material = listMaterial.Where(item => item.materialID == materialNPTXT).FirstOrDefault()!;
+            storage = listStorage.Where(item => item.storagebin == storageTXT).FirstOrDefault()!;
+            if (material is null && storage is null)
+            {
+                materialNPTXT = "";
+                storageTXT = "";
+                Modal.Show("NUMERO DE PARTE Y STORAGE BIN NO EXISTEN", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO NUMERO DE PARTE Y STORAGE BIN");
+                return;
+            }
+            if (material is null)
+            {
+                materialNPTXT = "";
+                Modal.Show("NUMERO DE PARTE NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO NUMERO DE PARTE");
+                return;
+            }
+            if (storage is null)
+            {
+                storageTXT = "";
+                Modal.Show("STORAGE BIN NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO STORAGE BIN");
+                return;
+            }
+
             enableGuardado = true;
+
+            enableMaterial = true;
+            enableStorage = true;
+
+            // if(material is null || storage is null)
+            // {
+            //     enableAdicional = true;
+            // } else
+            // {
+            //     enableGuardado = true;
+            // }
+            // enableMaterial = true;
+            // enableStorage = true;
         }
-        enableMaterial = true;
-        enableStorage = true;
+
+
+
+
+        // bool validarExisteMaterial = listInitialMaterial.Any(item => item.MaterialNumber!.Equals(materialNPTXT, StringComparison.OrdinalIgnoreCase));
+        // bool validarExisteStorage = listInitialStorage.Any(item => item.StorageBin!.Equals(storageTXT, StringComparison.OrdinalIgnoreCase));
+        // if (!validarExisteMaterial || !validarExisteStorage)
+        // {
+        //     Modal.Show("EXISTEN CAMPOS ", "PRECAUCION", Message.WARNING, Icon.WARNING);
+        //     return;
+        // }
+
+
+
+
     }
 
     private void refresh()
@@ -245,12 +453,71 @@
         NavManager.NavigateTo("registro");
     }
 
-    private async Task ActivaMensajeGuardado()
+    private void BuscaFolio()
+    {
+        if (cantidad <= 0)
+        {
+            Modal.Show("CANTIDAD INVALIDA", "ERROR", Message.ERROR, Icon.ERROR);
+            return;
+        }
+        seguroGuardar = true;
+    }
+
+    private async Task Guardado()
     {
         Loading.Show();
-        await Task.Delay(2000);
-        Loading.Hide();
-        Modal.Show("REGISTRO GUARDADO EXITOSAMENTE", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
-        refresh();
+        if (!capturaAdicional)
+        {
+            listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);
+            listInitialResultado = listInitial.Where(x => x.storage_bin == storageTXT).Where(y => y.material_number == materialNPTXT).ToList();
+            if (listInitialResultado[0].folio is null || listInitialResultado[0].folio == "")
+            {
+                // Console.WriteLine("Debo generar un folio a todos los registros");
+                string result = await InputsDataService.UpdateInitialLoadFolioAsync();
+                if (result == "Error")
+                {
+                    Modal.Show("ERROR AL MODIFICAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                    Loading.Hide();
+                    return;
+                }
+                await Guardado();
+                return;
+            }
+            else
+            {
+                folio = listInitialResultado[0].folio!;
+                // Console.WriteLine($"El folio es {listInitialResultado[0].folio}");
+                // ********************************************************
+                // ********************************************************
+                // ******* AQUI COLOCAR LA ACTUALIZACION EN BD ************
+                // ********************************************************
+                // ********************************************************
+
+                //  1.Cambiar el estado de "PENDIENTE" a "CONTADO" en la tabla de 'saldos_iniciales'
+                //  2.Insertar en la nueva tabla el registro del folio, cantidad, comparativa y 
+            }
+            Loading.Hide();
+            seguroGuardar = false;
+            Modal.Show("REGISTRO GUARDADO EXITOSAMENTE", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, $"FOLIO {folio}");
+            folio = string.Empty;
+            refresh();
+        } else
+        {
+            // ********************************************************
+            // ********************************************************
+            // ******* AQUI COLOCAR LA ACTUALIZACION EN BD ************
+            // ********************************************************
+            // ********************************************************
+
+            //  REALIZAR UN FOLIO A(periodo)-(consecutivo), este consuecutivo se debe consultar desde la tabla nueva
+            //  Hacer una consulta con la tabla nueva, con los registros que inician con A y obtener el ultimo digito para agregarle 1
+
+            // Insertar en la nueva tabla el registro del folio, cantidad, comparativa y
+            Loading.Hide();
+            seguroGuardar = false;
+            Modal.Show("AQUI SE DEBE GENERAR UN NUEVO REGISTRO PERO COMO CAPTURA ADICIONAL", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+            refresh();
+        }
+
     }
 }

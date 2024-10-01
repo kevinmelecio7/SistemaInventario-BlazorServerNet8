@@ -4,6 +4,7 @@ using AppLogin.Responses;
 using Microsoft.AspNetCore.Components;
 using System.Text.Json;
 using System.Text;
+using AppLogin.Repos;
 
 
 namespace AppLogin.Services
@@ -390,6 +391,31 @@ namespace AppLogin.Services
             catch (Exception ex)
             {
                 BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsData", accion = "DeleteInitialLoadAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+        public async Task<string> UpdateInitialLoadFolioAsync()
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/UpdateInitialLoadFolio";
+                var response = await httpClient.PutAsync(apiURL, null);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateInitialLoadFolioAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateInitialLoadFolioAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
                 await bitacoraService.InsertBitacoraAsync(bitacora);
                 return "Error";
             }
