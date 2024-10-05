@@ -1,7 +1,8 @@
 ﻿@page "/reporte"
 @using System.Data
-@using System.IO
-@using System.Globalization;
+@using NPOI.SS.UserModel;
+@using NPOI.XSSF.UserModel;
+@using System.IO;
 
 <AuthorizeView Roles="Admin">
     <NotAuthorized>
@@ -164,6 +165,7 @@
 
 
 @code {
+    
 
 
     IList<ReporteDTO> selectedRegistro;
@@ -179,6 +181,9 @@
 
     [Inject]
     private InputsDataService InputsDataService { get; set; }
+
+    [Inject]
+    private IJSRuntime JS { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -213,11 +218,67 @@
         Loading.Hide();
     }
 
-    private void exportarExcel()
+    private async Task exportarExcel()
     {
         Loading.Show();
-        // listReporte = await InputsDataService.GetReportePorPeriodoAsync(periodo);
+        listReporte = await InputsDataService.GetReportePorPeriodoAsync(periodo);
+        IWorkbook workbook = new XSSFWorkbook();
+        ISheet sheet = workbook.CreateSheet($"Reporte {periodo}");
 
+        // Crear la fila de encabezado
+        IRow headerRow = sheet.CreateRow(0);
+        headerRow.CreateCell(0).SetCellValue("ID");
+        headerRow.CreateCell(1).SetCellValue("Folio");
+        headerRow.CreateCell(2).SetCellValue("Periodo");
+        headerRow.CreateCell(3).SetCellValue("Storage Bin");
+        headerRow.CreateCell(4).SetCellValue("Material Number");
+        headerRow.CreateCell(5).SetCellValue("Material Descripcion");
+        headerRow.CreateCell(6).SetCellValue("Unit Standard Cost");
+        headerRow.CreateCell(7).SetCellValue("Cantidad Inicial");
+        headerRow.CreateCell(8).SetCellValue("Cantidad Contada");
+        headerRow.CreateCell(9).SetCellValue("Diferencia Cantidad");
+        headerRow.CreateCell(10).SetCellValue("Porcentaje Diferencia");
+        headerRow.CreateCell(11).SetCellValue("Importe Inicial");
+        headerRow.CreateCell(12).SetCellValue("Importe Contada");
+        headerRow.CreateCell(13).SetCellValue("Diferencia Importe");
+        headerRow.CreateCell(14).SetCellValue("Porcentaje Variacion Importe");
+        headerRow.CreateCell(15).SetCellValue("Usuario");
+        headerRow.CreateCell(16).SetCellValue("Fecha");
+
+        for (int i = 0; i < listReporte.Count; i++)
+        {
+            ReporteDTO item = listReporte[i];
+            IRow row = sheet.CreateRow(i + 1);
+            row.CreateCell(0).SetCellValue(item.id);
+            row.CreateCell(1).SetCellValue(item.folio ?? "");
+            row.CreateCell(2).SetCellValue(item.periodo ?? "");
+            row.CreateCell(3).SetCellValue(item.storage_bin ?? "");
+            row.CreateCell(4).SetCellValue(item.material_number ?? "");
+            row.CreateCell(5).SetCellValue(item.material_descripcion ?? "");
+            row.CreateCell(6).SetCellValue(item.unit_standard_cost);
+            row.CreateCell(7).SetCellValue(item.cantidad_inicial);
+            row.CreateCell(8).SetCellValue(item.cantidad_contada);
+            row.CreateCell(9).SetCellValue(item.diferencia_cantidad);
+            row.CreateCell(10).SetCellValue(item.porcentaje_diferencia);
+            row.CreateCell(11).SetCellValue(item.importe_inicial);
+            row.CreateCell(12).SetCellValue(item.importe_contada);
+            row.CreateCell(13).SetCellValue(item.diferencia_importe);
+            row.CreateCell(14).SetCellValue(item.porcentaje_variacion_importe);
+            row.CreateCell(15).SetCellValue(item.usuario ?? "");
+            row.CreateCell(16).SetCellValue(item.fecha.ToString("yyyy-MM-dd"));
+        }
+
+        // Guardar el archivo en memoria y devolverlo como un archivo descargable
+        using (var stream = new MemoryStream())
+        {
+            workbook.Write(stream);
+            byte[] bytes = stream.ToArray();
+
+            // Utilizar la clase NavigationManager para descargar el archivo
+            var base64 = Convert.ToBase64String(bytes);
+            var content = $"data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64}";
+            await JS.InvokeVoidAsync("downloadFile", content, $"Reporte {periodo}.xlsx");
+        }
 
 
         Loading.Hide();
