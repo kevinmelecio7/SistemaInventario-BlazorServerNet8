@@ -607,7 +607,7 @@ namespace AppLogin.Repos
             }
 
         }
-        public async Task UpdateInitialLoadFolio()
+        public async Task UpdateInitialLoadFolioAsync()
         {
             List<InitialLoadDTO> listInitial = new List<InitialLoadDTO>();
             List<PeriodoDTO> listPeriodo = new List<PeriodoDTO>();
@@ -627,10 +627,12 @@ namespace AppLogin.Repos
                     {
                         try
                         {
+                            int i = 0;
                             sql = "UPDATE saldos_iniciales SET folio = @folio, estado = @estado WHERE id_saldos = @id;";
                             foreach (var obj in listInitial)
                             {
-                                folio = "R" + stringPeriodo + "-" + obj.id;
+                                i++;
+                                folio = "R" + stringPeriodo + "-" + i;
                                 //Console.WriteLine(folio + "\n");
                                 using (var command = new SqlCommand(sql, connection, transaction))
                                 {
@@ -660,6 +662,149 @@ namespace AppLogin.Repos
             {
                 throw new Exception("Error: ", ex);
             }
+        }
+        public async Task UpdateInitialLoadEstadoAsync(InitialLoadDTO obj)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string sql = "UPDATE saldos_iniciales SET estado = @estado WHERE folio = @folio;";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@estado", obj.estado);
+                                command.Parameters.AddWithValue("@folio", obj.folio);
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al insertar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
+        }
+
+        
+        public async Task InsertReporteAsync(ReporteDTO obj)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string sql = "INSERT INTO reporte (folio, periodo, storage_bin, material_number, material_descripcion, unit_standard_cost, cantidad_inicial, cantidad_contada, diferencia_cantidad, porcentaje_diferencia, importe_inicial, importe_contada, diferencia_importe, porcentaje_variacion_importe, usuario, fecha ) " +
+                                            "VALUES (@folio, @periodo, @storage_bin, @material_number, @material_descripcion, @unit_standar_cost, @cantidad_inicial, @cantidad_contada, @diferencia_cantidad, @porcentaje_diferencia, @importe_inicial, @importe_contada, @diferencia_importe, @porcentaje_variacion_importe, @usuario, GETDATE());";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@folio", obj.folio);
+                                command.Parameters.AddWithValue("@periodo", obj.periodo);
+                                command.Parameters.AddWithValue("@storage_bin", obj.storage_bin);
+                                command.Parameters.AddWithValue("@material_number", obj.material_number);
+                                command.Parameters.AddWithValue("@material_descripcion", obj.material_descripcion);
+                                command.Parameters.AddWithValue("@unit_standar_cost", obj.unit_standard_cost);
+                                command.Parameters.AddWithValue("@cantidad_inicial", obj.cantidad_inicial);
+                                command.Parameters.AddWithValue("@cantidad_contada", obj.cantidad_contada);
+                                command.Parameters.AddWithValue("@diferencia_cantidad", obj.diferencia_cantidad);
+                                command.Parameters.AddWithValue("@porcentaje_diferencia", obj.porcentaje_diferencia);
+                                command.Parameters.AddWithValue("@importe_inicial", obj.importe_inicial);
+                                command.Parameters.AddWithValue("@importe_contada", obj.importe_contada);
+                                command.Parameters.AddWithValue("@diferencia_importe", obj.diferencia_importe);
+                                command.Parameters.AddWithValue("@porcentaje_variacion_importe", obj.porcentaje_variacion_importe);
+                                command.Parameters.AddWithValue("@usuario", obj.usuario);
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error al insertar: ", ex);
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                throw new Exception("Error SQL: ", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
+
+        }
+        public async Task<List<ReporteDTO>> GetReportePorPeriodoAsync(string periodo)
+        {
+            var dtos = new List<ReporteDTO>();
+            try
+            {
+                using (var connection = new SqlConnection(_connectionSQL))
+                {
+                    await connection.OpenAsync();
+                    string sql = "SELECT * FROM reporte WHERE periodo = @Periodo;";
+                    using (var command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@Periodo", periodo);
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                dtos.Add(new ReporteDTO
+                                {
+                                    id = Convert.ToInt32(reader["id"]),
+                                    folio = reader["folio"].ToString(),
+                                    periodo = reader["periodo"].ToString(),
+                                    storage_bin = reader["storage_bin"].ToString(),
+                                    material_number = reader["material_number"].ToString(),
+                                    material_descripcion = reader["material_descripcion"].ToString(),
+                                    unit_standard_cost = double.Parse(reader["unit_standard_cost"].ToString()),
+                                    cantidad_inicial = double.Parse(reader["cantidad_inicial"].ToString()),
+                                    cantidad_contada = double.Parse(reader["cantidad_contada"].ToString()),
+                                    diferencia_cantidad = double.Parse(reader["diferencia_cantidad"].ToString()),
+                                    porcentaje_diferencia = double.Parse(reader["porcentaje_diferencia"].ToString()),
+                                    importe_inicial = double.Parse(reader["importe_inicial"].ToString()),
+                                    importe_contada = double.Parse(reader["importe_contada"].ToString()),
+                                    diferencia_importe = double.Parse(reader["diferencia_importe"].ToString()),
+                                    porcentaje_variacion_importe = double.Parse(reader["porcentaje_variacion_importe"].ToString()),
+                                    usuario = reader["usuario"].ToString(),
+                                    fecha = Convert.ToDateTime(reader["periodo"].ToString()),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: ", ex);
+            }
+            return dtos;
         }
     }
 }

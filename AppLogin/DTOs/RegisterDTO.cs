@@ -2,10 +2,10 @@
 
 namespace AppLogin.DTOs
 {
-    public class RegisterDTO :LoginDTO
+    public class RegisterDTO : LoginDTO
     {
         [Required]
-        public string? Name {  get; set; }
+        public string? Name { get; set; }
 
         [Required, Compare(nameof(Password)), DataType(DataType.Password)]
         public string? ConfirmPassword { get; set; }

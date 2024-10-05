@@ -1,4 +1,4 @@
-﻿using AppLogin.DTOs;
+﻿using AppLogin.DTOs.Excel;
 
 namespace AppLogin.Repos
 {

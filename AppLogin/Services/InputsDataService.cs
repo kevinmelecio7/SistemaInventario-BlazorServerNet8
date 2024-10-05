@@ -1,10 +1,11 @@
-﻿using AppLogin.DTOs;
-using AppLogin.DTOs.Excel;
+﻿using AppLogin.DTOs.Excel;
 using AppLogin.Responses;
 using Microsoft.AspNetCore.Components;
 using System.Text.Json;
 using System.Text;
 using AppLogin.Repos;
+using AppLogin.DTOs;
+using System.Collections.Generic;
 
 
 namespace AppLogin.Services
@@ -312,7 +313,7 @@ namespace AppLogin.Services
             }
         }
 
-        public async Task<List<InitialLoadDTO>> GetInitialLoadAsync(int periodo)
+        public async Task<List<InitialLoadDTO>> GetInitialLoadAsync(int periodo) 
         {
             try
             {
@@ -418,6 +419,78 @@ namespace AppLogin.Services
                 BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateInitialLoadFolioAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
                 await bitacoraService.InsertBitacoraAsync(bitacora);
                 return "Error";
+            }
+        }
+        public async Task<string> UpdateInitialLoadEstadoAsync(InitialLoadDTO model)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/UpdateInitialLoadEstado";
+                var response = await httpClient.PutAsJsonAsync(apiURL, model);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateInitialLoadEstadoAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "UpdateInitialLoadEstadoAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+
+        public async Task<string> InsertReporteAsync(ReporteDTO model)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/InsertReporte";
+                var response = await httpClient.PostAsJsonAsync(apiURL, model);
+                if (response.IsSuccessStatusCode)
+                {
+                    var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+                    if (apiResponse!.Response == null && apiResponse!.Mensaje == "ok")
+                    {
+                        return apiResponse.Mensaje;
+                    }
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "InsertReporteAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "InsertReporteAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return "Error";
+            }
+        }
+        public async Task<List<ReporteDTO>> GetReportePorPeriodoAsync(string periodo)
+        {
+            try
+            {
+                string apiURL = $"{BaseUrl}/GetReportePorPeriodo?periodo={periodo}";
+                var response = await httpClient.GetFromJsonAsync<ApiResponse<List<ReporteDTO>>>(apiURL);
+                if (response != null && response.Mensaje == "ok")
+                {
+                    return response.Response ?? new List<ReporteDTO>();
+                }
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "GetReportePorPeriodoAsync", tipo = "ERROR", descripcion = response.ToString(), usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return new List<ReporteDTO>();
+            }
+            catch (Exception ex)
+            {
+                BitacoraDTO bitacora = new BitacoraDTO { vista = "InputsDataService", accion = "GetReportePorPeriodoAsync", tipo = "ERROR", descripcion = ex.Message, usuario = "0" };
+                await bitacoraService.InsertBitacoraAsync(bitacora);
+                return new List<ReporteDTO>();
             }
         }
     }

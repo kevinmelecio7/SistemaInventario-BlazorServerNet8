@@ -1,4 +1,4 @@
-﻿namespace AppLogin.DTOs
+﻿namespace AppLogin.DTOs.Excel
 {
     public class BitacoraDTO
     {

@@ -18,6 +18,7 @@ namespace AppLogin.Controllers
         List<StorageBinDTO> dtosStorage;
         List<MasterDataDTO> dtosMaster;
         List<InitialLoadDTO> dtosInitial;
+        List<ReporteDTO> dtosReporte;
         public InputsDataController(IInputsData inputsrepo)
         {
             this.inputsrepo = inputsrepo;
@@ -36,7 +37,7 @@ namespace AppLogin.Controllers
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<PeriodoDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<PeriodoDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse); ;
             }
         }
@@ -48,13 +49,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.InsertPeriodoAsync(model);
-                var response = new ApiResponse<List<PeriodoDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<PeriodoDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<PeriodoDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<PeriodoDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -66,13 +67,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.UpdatePeriodoAsync(model);
-                var response = new ApiResponse<List<PeriodoDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<PeriodoDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<PeriodoDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<PeriodoDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -90,7 +91,7 @@ namespace AppLogin.Controllers
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse); ;
             }
         }
@@ -102,13 +103,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.InsertStorageAsync(list);
-                var response = new ApiResponse<List<StorageBinDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<StorageBinDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -120,13 +121,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.UpdateStorageAsync(obj);
-                var response = new ApiResponse<List<StorageBinDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<StorageBinDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -138,13 +139,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.DeleteStorageAsync(ids);
-                var response = new ApiResponse<List<StorageBinDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<StorageBinDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<StorageBinDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -162,7 +163,7 @@ namespace AppLogin.Controllers
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse); ;
             }
         }
@@ -174,13 +175,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.InsertMasterDataAsync(list);
-                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -192,13 +193,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.UpdateMasterDataAsync(obj);
-                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -210,13 +211,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.DeleteMasterDataAsync(ids);
-                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -234,7 +235,7 @@ namespace AppLogin.Controllers
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse); ;
             }
         }
@@ -246,13 +247,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.InsertInitialLoadAsync(list);
-                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -264,13 +265,13 @@ namespace AppLogin.Controllers
             try
             {
                 await inputsrepo.DeleteInitialLoadAsync(ids);
-                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null };
+                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
@@ -281,15 +282,71 @@ namespace AppLogin.Controllers
         {
             try
             {
-                await inputsrepo.UpdateInitialLoadFolio();
-                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null };
+                await inputsrepo.UpdateInitialLoadFolioAsync();
+                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null! };
                 return Ok(response);
 
             }
             catch (Exception ex)
             {
-                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null };
+                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null! };
                 return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+        [HttpPut("UpdateInitialLoadEstado")]
+        [AllowAnonymous]
+        public async Task<ActionResult> UpdateInitialLoadEstado(InitialLoadDTO obj)
+        {
+            try
+            {
+                await inputsrepo.UpdateInitialLoadEstadoAsync(obj);
+                var response = new ApiResponse<List<InitialLoadDTO>> { Mensaje = "ok", Response = null! };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<InitialLoadDTO>> { Mensaje = ex.Message, Response = null! };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+        
+
+        [HttpPost("InsertReporte")]
+        [AllowAnonymous]
+        public async Task<ActionResult> InsertReporte(ReporteDTO obj)
+        {
+            try
+            {
+                await inputsrepo.InsertReporteAsync(obj);
+                var response = new ApiResponse<List<MasterDataDTO>> { Mensaje = "ok", Response = null! };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<MasterDataDTO>> { Mensaje = ex.Message, Response = null! };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+        [HttpGet("GetReportePorPeriodo")] //GetReporte?periodo=
+        [AllowAnonymous]
+        public async Task<IActionResult> GetReportePorPeriodo([FromQuery] string periodo)
+        {
+
+            try
+            {
+                dtosReporte = await inputsrepo.GetReportePorPeriodoAsync(periodo);
+                var response = new ApiResponse<List<ReporteDTO>> { Mensaje = "ok", Response = dtosReporte };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<ReporteDTO>> { Mensaje = ex.Message, Response = null! };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse); ;
             }
         }
 

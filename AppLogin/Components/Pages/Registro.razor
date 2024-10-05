@@ -194,6 +194,7 @@
     private InputsDataService InputsDataService { get; set; }
 
     private List<PeriodoDTO> listPeriodo = new List<PeriodoDTO>();
+    PeriodoDTO peridoActual = new PeriodoDTO();
     List<InitialLoadDTO> listInitial = new List<InitialLoadDTO>();
     List<InitialLoadDTO> listInitialResultado = new List<InitialLoadDTO>();
 
@@ -216,14 +217,16 @@
     List<InitialMaterial> listInitialMaterial = new List<InitialMaterial>();
     List<InitialStorage> listInitialStorage= new List<InitialStorage>();
 
-
+    string usuario = string.Empty;
 
 
     protected override async Task OnInitializedAsync()
     {
+
         listPeriodo = await InputsDataService.GetPeriodoAsync();
         if (listPeriodo.Count() > 0 && listPeriodo[0].activo == 1)
         {
+            peridoActual = listPeriodo[0];
             listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);
             listInitial = listInitial.Where(item => item.estado != "CONTADO").ToList();
             listInitialMaterial = listInitial.GroupBy(x => new { x.material_number, x.material_description })
@@ -239,6 +242,14 @@
                                                     }).ToList();
             listStorage = await InputsDataService.GetStorageAsync(listPeriodo[0].id);
             listMaterial = await InputsDataService.GetMasterDataAsync(listPeriodo[0].id);
+
+            //obtener usuario
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.Identity != null && user.Identity.IsAuthenticated)
+            {
+                usuario = user.Identity.Name!;
+            }
         } else
         {
             Modal.Show("EL ADMINISTRADOR AUN NO HA ACTIVDADO EL PERIODO", "PRECAUCION", Message.WARNING, Icon.WARNING, "RECARGE LA PAGINA CUANDO SE LE NOTIFIQUE EL CAMBIO DE PERIODO");
@@ -341,6 +352,8 @@
     {
         capturaAdicional = true;
         enableAdicional = false;
+        enableMaterial = false;
+        enableStorage = false;
         material = listMaterial.Where(item => item.materialID == materialNPTXT).FirstOrDefault()!;
         storage = listStorage.Where(item => item.storagebin == storageTXT).FirstOrDefault()!;
         if (material is null && storage is null)
@@ -383,6 +396,8 @@
             if (listInitialResultado.Count() == 0)
             {
                 enableAdicional = true;
+                enableMaterial = true;
+                enableStorage = true;
             }
             else
             {
@@ -473,29 +488,60 @@
             if (listInitialResultado[0].folio is null || listInitialResultado[0].folio == "")
             {
                 // Console.WriteLine("Debo generar un folio a todos los registros");
-                string result = await InputsDataService.UpdateInitialLoadFolioAsync();
-                if (result == "Error")
+                string result1 = await InputsDataService.UpdateInitialLoadFolioAsync();
+                if (result1 == "Error")
                 {
-                    Modal.Show("ERROR AL MODIFICAR STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                    Modal.Show("ERROR AL GENERAR FOLIOS", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
                 }
                 await Guardado();
                 return;
             }
-            else
-            {
-                folio = listInitialResultado[0].folio!;
-                // Console.WriteLine($"El folio es {listInitialResultado[0].folio}");
-                // ********************************************************
-                // ********************************************************
-                // ******* AQUI COLOCAR LA ACTUALIZACION EN BD ************
-                // ********************************************************
-                // ********************************************************
+            // Console.WriteLine($"El folio es {listInitialResultado[0].folio}");
+            folio = listInitialResultado[0].folio!;
+            InitialLoadDTO updateInitial = listInitialResultado[0];
+            updateInitial.folio = folio;
+            updateInitial.estado = "CONTADO";
 
-                //  1.Cambiar el estado de "PENDIENTE" a "CONTADO" en la tabla de 'saldos_iniciales'
-                //  2.Insertar en la nueva tabla el registro del folio, cantidad, comparativa y 
+            //  1.Cambiar el estado de "PENDIENTE" a "CONTADO" en la tabla de 'saldos_iniciales'
+            string result2 = await InputsDataService.UpdateInitialLoadEstadoAsync(updateInitial);
+            if (result2 == "Error")
+            {
+                Modal.Show("ERROR AL GENERAR FOLIOS", "ERROR", Message.ERROR, Icon.ERROR);
+                Loading.Hide();
+                return;
             }
+
+            ReporteDTO reporte = new ReporteDTO
+                {
+                    folio = folio,
+                    periodo = peridoActual.periodo,
+                    storage_bin = listInitialResultado[0].storage_bin,
+                    material_number = listInitialResultado[0].material_number,
+                    material_descripcion = listInitialResultado[0].material_description,
+                    unit_standard_cost = listInitialResultado[0].unit_standard_cost,
+                    cantidad_inicial = listInitialResultado[0].total_quantity,
+                    cantidad_contada = cantidad,
+                    diferencia_cantidad = listInitialResultado[0].total_quantity - cantidad,
+                    porcentaje_diferencia = (((listInitialResultado[0].total_quantity - cantidad) * 100) / listInitialResultado[0].total_quantity),
+                    importe_inicial = listInitialResultado[0].total_cost,
+                    importe_contada = listInitialResultado[0].unit_standard_cost * cantidad,
+                    diferencia_importe = listInitialResultado[0].total_cost - (listInitialResultado[0].unit_standard_cost * cantidad),
+                    porcentaje_variacion_importe = (100 - (((listInitialResultado[0].unit_standard_cost * cantidad) * 100) / listInitialResultado[0].total_cost)),
+                    usuario = usuario,
+                };
+
+            //  2.Insertar en la nueva tabla el registro del folio, cantidad, comparativa y
+            string result3 = await InputsDataService.InsertReporteAsync(reporte);
+            if (result3 == "Error")
+            {
+                Modal.Show("ERROR AL GENERAR GUARDAR NUEVO REGISTRO", "ERROR", Message.ERROR, Icon.ERROR);
+                Loading.Hide();
+                return;
+            }               
+
+
             Loading.Hide();
             seguroGuardar = false;
             Modal.Show("REGISTRO GUARDADO EXITOSAMENTE", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, $"FOLIO {folio}");
@@ -503,19 +549,59 @@
             refresh();
         } else
         {
-            // ********************************************************
-            // ********************************************************
-            // ******* AQUI COLOCAR LA ACTUALIZACION EN BD ************
-            // ********************************************************
-            // ********************************************************
 
             //  REALIZAR UN FOLIO A(periodo)-(consecutivo), este consuecutivo se debe consultar desde la tabla nueva
-            //  Hacer una consulta con la tabla nueva, con los registros que inician con A y obtener el ultimo digito para agregarle 1
+            string[] conPeriodo = peridoActual.periodo!.Split("-");
+            List<ReporteDTO> listRegistros = await InputsDataService.GetReportePorPeriodoAsync(peridoActual.periodo!);
+            if(listRegistros.Count() != 0)
+            {
+                //  Hacer una consulta con la tabla nueva, con los registros que inician con A y obtener el ultimo digito para agregarle 1
+                var registrosConA = listRegistros.Where(item => item.folio != null && item.folio.Contains("A"))
+                    .OrderByDescending(item => item.id).FirstOrDefault();
+                if (registrosConA is not null)
+                {
+                    string[] conFolio = registrosConA.folio!.Split("-");
+                    folio = conFolio[0] + "-" + (int.Parse(conFolio[1]) + 1);
+                } else
+                {
+                    folio = "A" + conPeriodo[0] + conPeriodo[1] + "-" + 1;
+                }
+            } else
+            {
+                folio = "A" + conPeriodo[0] + conPeriodo[1] + "-" + 1;
+            }
 
-            // Insertar en la nueva tabla el registro del folio, cantidad, comparativa y
+            ReporteDTO reporte = new ReporteDTO
+                {
+                    folio = folio,
+                    periodo = peridoActual.periodo,
+                    storage_bin = storage.storagebin,
+                    material_number = material.materialID,
+                    material_descripcion = material.descripcion,
+                    unit_standard_cost = material.unit_price,
+                    cantidad_inicial = 0,
+                    cantidad_contada = cantidad,
+                    diferencia_cantidad = 0,
+                    porcentaje_diferencia = 0,
+                    importe_inicial = 0,
+                    importe_contada = material.unit_price * cantidad,
+                    diferencia_importe = 0,
+                    porcentaje_variacion_importe = 0,
+                    usuario = usuario,
+                };
+
+            // Insertar en la nueva tabla el registro del folio
+            string result3 = await InputsDataService.InsertReporteAsync(reporte);
+            if (result3 == "Error")
+            {
+                Modal.Show("ERROR AL GENERAR GUARDAR NUEVO REGISTRO", "ERROR", Message.ERROR, Icon.ERROR);
+                Loading.Hide();
+                return;
+            }
+
             Loading.Hide();
             seguroGuardar = false;
-            Modal.Show("AQUI SE DEBE GENERAR UN NUEVO REGISTRO PERO COMO CAPTURA ADICIONAL", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+            Modal.Show("REGISTRO GUARDADO EXITOSAMENTE", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, $"FOLIO {folio}");
             refresh();
         }
 

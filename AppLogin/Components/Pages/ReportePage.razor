@@ -1,0 +1,227 @@
+﻿@page "/reporte"
+@using System.Data
+@using System.IO
+@using CsvHelper
+@using System.Globalization;
+
+<AuthorizeView Roles="Admin">
+    <NotAuthorized>
+        <NotAuthorizedPage />
+    </NotAuthorized>
+    <Authorized>
+        <h3>Reporte</h3>
+        <br />
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+            <RadzenLabel Text="Seleccione un periodo" Component="DropDownVirtualization" />
+            <RadzenDropDown AllowClear="true" @bind-Value=periodo AllowVirtualization="true" Name="DropDownVirtualization" Change=@(()=>{vacio=false;})
+                            AllowFiltering="true" Data=@listPeriodo TextProperty="periodo" ValueProperty="periodo" Style="width: 100%; max-width: 400px;" />
+            <RadzenButton Click=@(()=>buscarReporte()) Text="BUSCAR" Icon="search" ButtonStyle="ButtonStyle.Primary" />
+            @if (tableReporte)
+            {
+                <RadzenButton Click=@(()=>exportarExcel()) Text="EXPORTAR" Icon="get_app" ButtonStyle="ButtonStyle.Secondary" />
+            }
+        </RadzenStack>
+        <br />
+        @if (tableReporte)
+        {
+            @if (selectedRegistro?.Any() == true)
+            {
+                <div class="modal fade show bg-black bg-opacity-50" style="display:block;" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content rounded p-3">
+                            <RadzenRow class="rz-text-align-center" Gap="1rem">
+                                <RadzenColumn class="rz-p-5">
+                                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-1 rz-my-0">FOLIO</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body1" class="rz-display-flex"><b>@selectedRegistro[0].folio</b></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn class="rz-p-5">
+                                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-1 rz-mb-0">STORAGE BIN</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body1" class="rz-display-flex"><b>@selectedRegistro[0].storage_bin</b></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn class="rz-p-5">
+                                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-1 rz-my-0">MATERIAL</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body1" class="rz-display-flex"><b>@selectedRegistro[0].material_number</b></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn class="rz-p-5">
+                                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-1 rz-mb-0">DESCRIPCION</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body1" class="rz-display-flex"><b>@selectedRegistro[0].material_descripcion</b></RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenCard class="rz-background-color-primary-light rz-shadow-0 rz-border-radius-0 rz-p-8" style="margin: 1rem calc(-1 * var(--rz-card-padding));">
+                                <RadzenText TextStyle="TextStyle.H6" class="rz-color-on-primary-light"><strong>Informacion Detallada</strong></RadzenText>
+                                <RadzenRow RowGap="0">
+                                    <RadzenColumn SizeSM="6">
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Cantidad Inicial</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].cantidad_inicial pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Cantidad Contada</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].cantidad_contada pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Diferencia Cantidad</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].diferencia_cantidad pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Porcentaje Cantidad</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].porcentaje_diferencia.ToString("0.00") %</b></RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeSM="6">
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Importe Inicial</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].importe_inicial pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Importe Contada</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].importe_contada pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Diferencia Importe</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].diferencia_importe.ToString("0.00") pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Porcentaje Variacion Importe</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].porcentaje_variacion_importe.ToString("0.00") %</b></RadzenText>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenCard>
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0">
+                                <RadzenButton Variant="Variant.Text" Text="CERRAR" Click="@(()=>{selectedRegistro = null!;})" />
+                            </RadzenStack>
+                        </div>
+                    </div>
+                </div>
+
+            }
+            else
+            {
+                <div style="width:auto; overflow-x: auto;">
+                    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
+                                    AllowSorting="true" PageSize="12" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                                    Data="@listReporte" Density="Density.Compact" class="responsive-table"
+                                    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@selectedRegistro>
+
+                        <Columns>
+                            <RadzenDataGridColumn Property="folio" Title="Folio" />
+                            <RadzenDataGridColumn Property="storage_bin" Title="Storage Bin" />
+                            <RadzenDataGridColumn Property="material_number" Title="Material" />
+                            <RadzenDataGridColumn Property="material_descripcion" Title="Descripcion" />
+                            <RadzenDataGridColumn Property="cantidad_inicial" Title="Cantidad Inicial" />
+                            <RadzenDataGridColumn Property="cantidad_contada" Title="Cantidad Contado" />
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            }
+            
+            
+        } 
+        @if (vacio)
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-12">
+                <RadzenText TextStyle="TextStyle.H3" TagName="TagName.P">No exiten registros para el periodo @periodo</RadzenText>
+            </RadzenStack>
+        }
+
+
+
+
+        @* *******   LOADING   ******* *@
+        @if (Loading.showLoading)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display: block">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="d-flex align-items-center start">
+                                <div class="spinner-border" aria-hidden="true"></div>
+                                <strong role="status" class="ps-3">@Loading.messageLoading</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* *******   MODAL   ******* *@
+        @if (Modal.showModal)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display:block;" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom-0">
+                            <h1 class="modal-title fs-5">@Modal.TitleModal</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex flex-row mb-3 align-items-center">
+                                @if (Modal.ModalIcon.Length != 0)
+                                {
+                                    <img src="@Modal.ModalIcon" class="img-fluid" alt="Modal Icon" style="max-width: 50px; max-height: 50px;" />
+                                }
+                                <div class="p-2 fs-5">@Modal.MessageModal</div>
+                            </div>
+                            @if (Modal.MessageSecondary.Length != 0)
+                            {
+                                <div class="d-flex flex-row mb-3 align-items-center">
+                                    <div class="p-2 fs-5">@Modal.MessageSecondary</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer border-top-0">
+                            <button type="button" class="btn btn-@(Modal.MessageType.Length != 0 ? Modal.MessageType.ToLower() :"light" )" @onclick="() => Modal.Hide()">ACEPTAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    IList<ReporteDTO> selectedRegistro;
+
+    string periodo = string.Empty;
+
+    bool tableReporte = false;
+    bool vacio = false;
+
+
+    private List<PeriodoDTO> listPeriodo = new List<PeriodoDTO>();
+    private List<ReporteDTO> listReporte = new List<ReporteDTO>();
+
+    [Inject]
+    private InputsDataService InputsDataService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loading.Show();
+        listPeriodo = await InputsDataService.GetPeriodoAsync();
+        periodo = listPeriodo[0].periodo!;
+        Loading.Hide();
+    }
+
+    private async Task buscarReporte()
+    {
+        if (periodo is null)
+        {
+            vacio = false;
+            tableReporte = false;
+            return;
+        }
+
+        Loading.Show();
+        listReporte = await InputsDataService.GetReportePorPeriodoAsync(periodo);
+        if (listReporte.Count() == 0)
+        {
+            vacio = true;
+            tableReporte = false;
+        }
+        else
+        {
+            vacio = false;
+            tableReporte = true;
+        }
+
+        Loading.Hide();
+    }
+
+    private void exportarExcel()
+    {
+        Loading.Show();
+        // listReporte = await InputsDataService.GetReportePorPeriodoAsync(periodo);
+
+
+
+        Loading.Hide();
+    }
+
+}

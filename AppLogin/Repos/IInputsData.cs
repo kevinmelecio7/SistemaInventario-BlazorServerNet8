@@ -23,7 +23,12 @@ namespace AppLogin.Repos
         Task<List<InitialLoadDTO>> GetInitialLoadAsync(int periodo);
         Task InsertInitialLoadAsync(List<InitialLoadDTO> list);
         Task DeleteInitialLoadAsync(List<int> list);
-        Task UpdateInitialLoadFolio();
+        Task UpdateInitialLoadFolioAsync();
+        Task UpdateInitialLoadEstadoAsync(InitialLoadDTO obj);
+
+        
+        Task InsertReporteAsync(ReporteDTO obj);
+        Task<List<ReporteDTO>> GetReportePorPeriodoAsync(string periodo);
 
 
 

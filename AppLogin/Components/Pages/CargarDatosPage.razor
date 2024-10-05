@@ -422,9 +422,16 @@
             listMaterial = await InputsDataService.GetMasterDataAsync(listPeriodo[0].id);
             listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);  
         }
-        if (listInitial[0].folio is null || listInitial[0].folio == "")
+        // if (listInitial[0].folio is null || listInitial[0].folio == "")
+        if (listInitial.Count() != 0)
         {
-            sinFolios = true;
+            if (listInitial[0].folio is null || listInitial[0].folio == "")
+            {
+                sinFolios = true;
+            } else
+            {
+                sinFolios = false;
+            }
         } else
         {
             sinFolios = false;

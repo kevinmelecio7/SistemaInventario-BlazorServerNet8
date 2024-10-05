@@ -1,5 +1,4 @@
-﻿using AppLogin.DTOs;
-using AppLogin.DTOs.Excel;
+﻿using AppLogin.DTOs.Excel;
 using AppLogin.Responses;
 
 namespace AppLogin.Services
