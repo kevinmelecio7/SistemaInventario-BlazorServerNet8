@@ -350,6 +350,7 @@
     bool newStorage = false;
     bool newMaterial = false;
 
+    string usuario = string.Empty;
 
     List<StorageBinDTO> storagesToInsert = new List<StorageBinDTO>();
     List<StorageBinDTO> storagesToUpdate = new List<StorageBinDTO>();
@@ -358,6 +359,9 @@
 
     [Inject]
     private InputsDataService InputsDataService { get; set; }
+
+    [Inject]
+    private BitacoraService bitacoraService { get; set; }
 
     private List<PeriodoDTO> listPeriodo = new List<PeriodoDTO>();
     StorageBinDTO storage = new StorageBinDTO();
@@ -407,6 +411,14 @@
         if (listInitial.Count() != 0)
         {
             btnEliminarlistInitial= true;
+        }
+
+        //obtener usuario
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            usuario = user.Identity.Name!;
         }
 
         Loading.Hide();
@@ -460,15 +472,19 @@
         await refreshInfo();
         month = String.Empty;
         year = String.Empty;
+        await SaveBitacora("insertarPeriodo", "GUARDAR", "Periodo nuevo guardado");
         Loading.Hide();
         Modal.Show("PERIODO DE INVENTARIO ACTIVO GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
     }
 
     private async Task actualizarPeriodo()
     {
+        Loading.Show();
         PeriodoDTO periodo = new PeriodoDTO { id = listPeriodo[0].id, periodo = listPeriodo[0].periodo, activo = 0, fecha = DateTime.Now };
         await InputsDataService.UpdatePeriodoAsync(periodo);
+        await SaveBitacora("actualizarPeriodo", "ACTUALIZAR", "Periodo actualizado");
         await refreshInfo();
+        Loading.Hide();
     }
 
     private async Task guardarList(int input)
@@ -488,6 +504,7 @@
                     return;
                 }
                 btnEliminarListStorage = true;
+                await SaveBitacora("guardarList", "GUARDAR", "Storage Bin Guardado");
                 Modal.Show("STORAGE BIN GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "STORAGE BIN GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
                 break;
             case 2:
@@ -500,6 +517,7 @@
                     return;
                 }
                 btnEliminarlistMaterial = true;
+                await SaveBitacora("guardarList", "GUARDAR", "Materiales Guardado");
                 Modal.Show("MATERIALS GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "MATERIALS GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
                 break;
             case 3:
@@ -512,6 +530,7 @@
                     return;
                 }
                 btnEliminarlistInitial = true;
+                await SaveBitacora("guardarList", "GUARDAR", "Initial Load Guardado");
                 Modal.Show("INITIAL LOAD GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "INITIAL LOAD GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
                 break;
         }
@@ -538,6 +557,7 @@
                 }
                 btnEliminarListStorage = false; 
                 listStorage = new List<StorageBinDTO>();
+                await SaveBitacora("eliminarList", "ELIMINAR", "Storage Bin Eliminado");
                 Modal.Show("STORAGE BIN ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
                 break;
             case 2:
@@ -551,6 +571,7 @@
                 }
                 btnEliminarlistMaterial = false; 
                 listMaterial = new List<MasterDataDTO>(); 
+                await SaveBitacora("eliminarList", "ELIMINAR", "Materiales Eliminado");
                 Modal.Show("MATERIALS ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
                 break;
             case 3:
@@ -567,8 +588,9 @@
                     }
                     btnEliminarlistInitial = false;
                     listInitial = new List<InitialLoadDTO>();
+                    await SaveBitacora("eliminarList", "ELIMINAR", "Inital Load Eliminado");
                     Modal.Show("INITIAL LOAD ELIMINADO CORRECTAMENTE", "ELIMINADO", Message.SUCCESS, Icon.SUCCESS);
-                    
+
                 } else
                 {
                     sinFolios = false;
@@ -581,28 +603,6 @@
 
     }
 
-    async Task DeleteRowStorage(StorageBinDTO storage)
-    {
-        Loading.Show();
-        Reset(storage);
-        listStorage.Clear();
-        listStorage.Add(storage);
-        await eliminarList(1);
-        await CancelEditStorage(storage);
-        btnEliminarListStorage = true;
-        Loading.Hide();
-    }
-    async Task DeleteRowMaterial(MasterDataDTO material)
-    {
-        Loading.Show();
-        Reset(material);
-        listMaterial.Clear();
-        listMaterial.Add(material);
-        await eliminarList(2);
-        await CancelEditMaterial(material);
-        btnEliminarlistMaterial = true;
-        Loading.Hide();
-    }
     async Task SaveRowStorage(StorageBinDTO storage)
     {
         Loading.Show();
@@ -631,11 +631,13 @@
                 return;
             }
             btnEliminarListStorage = true;
+            await SaveBitacora("SaveRowStorage", "ACTUALIZAR", "Storage Bin Actualizado");
             Modal.Show($"SE HA MODIFICADO EL STORAGE BIN A {storage.storagebin}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
         }
         await CancelEditStorage(storage);
         Loading.Hide();
     }
+
     async Task SaveRowMaterial(MasterDataDTO material)
     {
         Loading.Show();
@@ -672,14 +674,25 @@
                 Loading.Hide();
                 return;
             }
+            await SaveBitacora("SaveRowMaterial", "ACTUALIZAR", "Material Actualizado");
             Modal.Show($"SE HA MODIFICADO EL MATERIAL A {material.descripcion}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
         }
         await CancelEditMaterial(material);
         Loading.Hide();
     }
 
+    async Task SaveBitacora(string accion, string tipo, string descripcion)
+    {
+        BitacoraDTO bitacora = new BitacoraDTO { 
+            vista = "CargaDatosPage", 
+            accion = accion,
+            tipo = tipo, 
+            descripcion = descripcion, 
+            usuario = usuario };
+        await bitacoraService.InsertBitacoraAsync(bitacora);
+    }
 
-    
+
 
     async Task ExcelMasterData_StorageBin(InputFileChangeEventArgs e)
     {
@@ -1021,5 +1034,27 @@
         materialsToInsert.Add(material);
         await materialsGrid.InsertRow(material);
         newMaterial = true;
+    }
+    async Task DeleteRowStorage(StorageBinDTO storage)
+    {
+        Loading.Show();
+        Reset(storage);
+        listStorage.Clear();
+        listStorage.Add(storage);
+        await eliminarList(1);
+        await CancelEditStorage(storage);
+        btnEliminarListStorage = true;
+        Loading.Hide();
+    }
+    async Task DeleteRowMaterial(MasterDataDTO material)
+    {
+        Loading.Show();
+        Reset(material);
+        listMaterial.Clear();
+        listMaterial.Add(material);
+        await eliminarList(2);
+        await CancelEditMaterial(material);
+        btnEliminarlistMaterial = true;
+        Loading.Hide();
     }
 }

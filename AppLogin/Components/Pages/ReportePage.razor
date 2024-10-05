@@ -64,7 +64,7 @@
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Importe Inicial</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].importe_inicial pz</b></RadzenText>
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Importe Contada</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].importe_contada pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].importe_contada.ToString("0.00") pz</b></RadzenText>
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Diferencia Importe</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].diferencia_importe.ToString("0.00") pz</b></RadzenText>
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Porcentaje Variacion Importe</RadzenText>
@@ -87,7 +87,6 @@
                                     AllowSorting="true" PageSize="12" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
                                     Data="@listReporte" Density="Density.Compact" class="responsive-table"
                                     SelectionMode="DataGridSelectionMode.Single" @bind-Value=@selectedRegistro>
-
                         <Columns>
                             <RadzenDataGridColumn Property="folio" Title="Folio" />
                             <RadzenDataGridColumn Property="storage_bin" Title="Storage Bin" />
@@ -95,6 +94,7 @@
                             <RadzenDataGridColumn Property="material_descripcion" Title="Descripcion" />
                             <RadzenDataGridColumn Property="cantidad_inicial" Title="Cantidad Inicial" />
                             <RadzenDataGridColumn Property="cantidad_contada" Title="Cantidad Contado" />
+                            <RadzenDataGridColumn Property="diferencia_cantidad" Title="Diferencia" />
                         </Columns>
                     </RadzenDataGrid>
                 </div>

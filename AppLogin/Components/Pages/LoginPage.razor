@@ -67,6 +67,23 @@
         </EditForm>
     </div>
 </div>
+
+@* *******   LOADING   ******* *@
+@if (Loading.showLoading)
+{
+    <div class="modal fade show bg-black bg-opacity-50" style="display: block">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="d-flex align-items-center start">
+                        <div class="spinner-border" aria-hidden="true"></div>
+                        <strong role="status" class="ps-3">@Loading.messageLoading</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @* <body class="flex items-center justify-center min-h-screen">
     <div class="bg-white bg-opacity-10 backdrop-blur-md p-8 rounded-lg shadow-lg w-96">
         <h2 class="text-3xl font-bold text-white mb-6 text-center">Iniciar Sesión</h2>
@@ -130,7 +147,7 @@
         LoginResponse response = await accountService.LogoutAsync();
         var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
         customAuthStateProvider.UpdateNotAuthenticationState();
-        
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -146,13 +163,15 @@
         }
     }
 
-    
+
 
     async Task LoginClicked()
     {
+        Loading.Show();
         LoginResponse response = await accountService.LoginAsync(Login);
         if (!response.Flag)
         {
+            Loading.Hide();
             await js.InvokeVoidAsync("alert", response.Message);
             return;
         }
@@ -160,6 +179,7 @@
         var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
         customAuthStateProvider.UpdateAuthenticationState(response.JWTToken);
         await sessionStorage.SetItemAsync("cuenta", Login.Email);
+        Loading.Hide();
         NavManager.NavigateTo("/home", forceLoad: true);
     }
 }
