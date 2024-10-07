@@ -1,5 +1,12 @@
 ﻿@page "/registro"
 
+<style>
+    .large-font-input {
+        font-size: 30px !important; /* Tamaño de la letra */
+        padding: 30px !important; /* Espacio interno */
+    }
+</style>
+
 <AuthorizeView Roles="User">
     <NotAuthorized>
         <NotAuthorizedPage />
@@ -10,6 +17,18 @@
             <RadzenFieldset Text="Ingresa valores" class="rz-background-color-base-100">
                 <RadzenStack  Gap="1rem">
                     <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Numero de Parte </RadzenText>
+                        <RadzenText TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Left" class="rz-pt-2"><b> @descripcion </b>  </RadzenText>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" class="form-control large-font-input" />
+                        @* <input type="text" class="form-control large-font-input" placeholder="Escribe aquí..." /> *@
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Storage Bin </RadzenText>
+                        <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" class="form-control large-font-input" />
+                    </RadzenRow>
+                    @* <RadzenRow AlignItems="AlignItems.Center">
                         <RadzenColumn Size="12" SizeMD="3">
                             <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Numero de Parte </RadzenText>
                         </RadzenColumn>
@@ -27,7 +46,7 @@
                         <RadzenColumn Size="12" SizeMD="5">
                             <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" />
                         </RadzenColumn>
-                    </RadzenRow>
+                    </RadzenRow> *@
                 </RadzenStack>
             </RadzenFieldset>
         </RadzenStack>
@@ -38,23 +57,34 @@
         {
             <br />
             <RadzenRow AlignItems="AlignItems.Start">
-                <RadzenColumn Size="12" SizeMD="4">
-                    <RadzenText TextStyle="TextStyle.Body2" class="rz-pt-2 rz-color-danger"> Los valores no existen en el reporte inicial o ya fueron registrados anteriormente. ¿Deseas realizar la captura adicional?  </RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" class="rz-pt-2 rz-color-danger"><b> Los valores no existen en el reporte inicial o ya fueron registrados anteriormente. ¿Deseas realizar la captura adicional?  </b></RadzenText>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenButton Click="()=>modeCapturaAdicional()" Text="Captura Adicional" Icon="add_circle" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Large" />
                 </RadzenColumn>
-                <RadzenColumn Size="12" SizeMD="3">
-                    <RadzenButton Click="()=>modeCapturaAdicional()" Text="Captura Adicional" Icon="add_circle" ButtonStyle="ButtonStyle.Warning" />
-                </RadzenColumn>
-                <RadzenColumn Size="12" SizeMD="4">
-                    <RadzenButton Click="()=>refresh()" Text="Intentar de nuevo" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenButton Click="()=>refresh()" Text="Intentar de nuevo" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Large" />
                 </RadzenColumn>
             </RadzenRow>
+            @* <RadzenRow AlignItems="AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.H5" class="rz-pt-2 rz-color-danger"> Los valores no existen en el reporte inicial o ya fueron registrados anteriormente. ¿Deseas realizar la captura adicional?  </RadzenText>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenButton Click="()=>modeCapturaAdicional()" Text="Captura Adicional" Icon="add_circle" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Large" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenButton Click="()=>refresh()" Text="Intentar de nuevo" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Large"/>
+                </RadzenColumn>
+            </RadzenRow> *@
         }
 
         @if (capturaAdicional)
         {
             <RadzenRow AlignItems="AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="4">
-                    <RadzenText TextStyle="TextStyle.Body1" class="rz-pt-2 rz-color-info"> Modo Captura Adicional  </RadzenText>
+                    <RadzenText TextStyle="TextStyle.H5" class="rz-pt-2 rz-color-info"><b> Modo Captura Adicional </b> </RadzenText>
                 </RadzenColumn>
             </RadzenRow>
         }
@@ -65,26 +95,28 @@
         @* COLOCAR CONDICION, SI EXISTE AMBOS VALORES, MOSTRAR CANTIDAD*@
         @if (enableGuardado)
         {
-            
-            <br />
             <br />
             <RadzenStack>
                 <RadzenFieldset Text="Ingresa Cantidad" class="rz-background-color-base-100">
                     <RadzenStack Gap="1rem">
                         <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Cantidad </RadzenText>
+                            <RadzenNumeric TValue="int" Min=0 Value=@cantidad Change=@(args => cantidad = args) style="--rz-input-font-size: 30px; height: 50px;" />
+                        </RadzenRow>
+                        @* <RadzenRow AlignItems="AlignItems.Center">
                             <RadzenColumn Size="12" SizeMD="3">
                                 <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Cantidad </RadzenText>
                             </RadzenColumn>
                             <RadzenColumn Size="12" SizeMD="5">
                                 <RadzenNumeric TValue="int" Min=0 Value=@cantidad Change=@(args => cantidad = args) InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "enter value" }})" />
                             </RadzenColumn>
-                        </RadzenRow>
+                        </RadzenRow> *@
                     </RadzenStack>
                 </RadzenFieldset>
             </RadzenStack>
             <br />
-            <RadzenButton Click="()=>BuscaFolio()" Text="Guardar" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
-            <RadzenButton Click="()=>refresh()" Text="Realizar nueva captura" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
+            <RadzenButton Click="()=>BuscaFolio()" Text="Guardar" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" />
+            <RadzenButton Click="()=>refresh()" Text="Realizar nueva captura" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Large" />
         }
         
         @* GUARDAR REGISTRO *@
@@ -391,7 +423,7 @@
                 return;
             }
 
-            listInitialResultado = listInitial.Where(x => x.storage_bin == storageTXT).Where(y => y.material_number == materialNPTXT).ToList();
+            listInitialResultado = listInitial.Where(x => x.storage_bin == storageTXT).Where(y => y.material_number == materialNPTXT).Where(z => z.fkPeriodo == peridoActual.id).ToList();
 
             if (listInitialResultado.Count() == 0)
             {
@@ -526,9 +558,13 @@
                     diferencia_cantidad = listInitialResultado[0].total_quantity - cantidad,
                     porcentaje_diferencia = (((listInitialResultado[0].total_quantity - cantidad) * 100) / listInitialResultado[0].total_quantity),
                     importe_inicial = listInitialResultado[0].total_cost,
-                    importe_contada = listInitialResultado[0].unit_standard_cost * cantidad,
-                    diferencia_importe = listInitialResultado[0].total_cost - (listInitialResultado[0].unit_standard_cost * cantidad),
-                    porcentaje_variacion_importe = (100 - (((listInitialResultado[0].unit_standard_cost * cantidad) * 100) / listInitialResultado[0].total_cost)),
+
+                    importe_contada = ((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity),
+                    diferencia_importe = listInitialResultado[0].total_cost - ((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity),
+                    porcentaje_variacion_importe = ((listInitialResultado[0].total_cost - ((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity)) * 100) / listInitialResultado[0].total_quantity,
+                    // importe_contada = listInitialResultado[0].unit_standard_cost * cantidad,
+                    // diferencia_importe = listInitialResultado[0].total_cost - (listInitialResultado[0].unit_standard_cost * cantidad),
+                    // porcentaje_variacion_importe = (100 - (((listInitialResultado[0].unit_standard_cost * cantidad) * 100) / listInitialResultado[0].total_cost)),
                     usuario = usuario,
                 };
 
