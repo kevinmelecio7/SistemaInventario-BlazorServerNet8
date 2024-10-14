@@ -95,24 +95,24 @@
             double sumaImpContado = 0;
             periodo = listPeriodo[i].periodo!;
             listReporte = await InputsDataService.GetReportePorPeriodoAsync(periodo);
-            if(listReporte.Count() == 0)
+            if(listReporte.Count() != 0)
             {
-                break;
+                foreach (var report in listReporte)
+                {
+                    sumaInicial = sumaInicial + report.cantidad_inicial;
+                    sumaContado = sumaContado + report.cantidad_contada;
+                    sumaImpIncial = sumaImpIncial + report.importe_inicial;
+                    sumaImpContado = sumaImpContado + report.importe_contada;
+                }
+
+                periodosData.Add(periodo);
+                CinicialData.Add(sumaInicial);
+                CcontadaData.Add(sumaContado);
+                IinicialData.Add(sumaImpIncial);
+                IcontadaData.Add(sumaImpContado);
             } 
 
-            foreach(var report in listReporte)
-            {
-                sumaInicial = sumaInicial + report.cantidad_inicial;
-                sumaContado = sumaContado + report.cantidad_contada;
-                sumaImpIncial = sumaImpIncial + report.importe_inicial;
-                sumaImpContado = sumaImpContado + report.importe_contada;
-            }
-
-            periodosData.Add(periodo);
-            CinicialData.Add(sumaInicial);
-            CcontadaData.Add(sumaContado);
-            IinicialData.Add(sumaImpIncial);
-            IcontadaData.Add(sumaImpContado);
+            
         }
 
         PZinicial = new DataItem[CinicialData.Count];

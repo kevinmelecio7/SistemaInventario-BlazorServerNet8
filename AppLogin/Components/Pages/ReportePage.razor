@@ -3,6 +3,7 @@
 @using NPOI.SS.UserModel;
 @using NPOI.XSSF.UserModel;
 @using System.IO;
+@using System.Globalization;
 
 <AuthorizeView Roles="Admin">
     <NotAuthorized>
@@ -58,17 +59,17 @@
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Diferencia Cantidad</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].diferencia_cantidad pz</b></RadzenText>
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Porcentaje Cantidad</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].porcentaje_diferencia.ToString("0.00") %</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].porcentaje_diferencia.ToString("#,##0.00", CultureInfo.CreateSpecificCulture("en-US")) %</b></RadzenText>
                                     </RadzenColumn>
                                     <RadzenColumn SizeSM="6">
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Importe Inicial</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].importe_inicial pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>$ @selectedRegistro[0].importe_inicial.ToString("#,##0.00", CultureInfo.CreateSpecificCulture("en-US")) </b></RadzenText>
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Importe Contada</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].importe_contada.ToString("0.00") pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>$ @selectedRegistro[0].importe_contada.ToString("#,##0.00", CultureInfo.CreateSpecificCulture("en-US"))</b></RadzenText>
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Diferencia Importe</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].diferencia_importe.ToString("0.00") pz</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>$ @selectedRegistro[0].diferencia_importe.ToString("#,##0.00", CultureInfo.CreateSpecificCulture("en-US")) </b></RadzenText>
                                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Porcentaje Variacion Importe</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].porcentaje_variacion_importe.ToString("0.00") %</b></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@selectedRegistro[0].porcentaje_variacion_importe.ToString("#,##0.00", CultureInfo.CreateSpecificCulture("en-US")) %</b></RadzenText>
                                     </RadzenColumn>
                                 </RadzenRow>
                             </RadzenCard>

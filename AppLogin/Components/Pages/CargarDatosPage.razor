@@ -9,12 +9,13 @@
     .rz-grid-table {
         width: unset;
     }
-
+ 
     .responsive-table {
-        width: calc(80vw - 20px); /* 80% del ancho de la ventana menos un pequeño margen */
-        overflow-x: auto; /* Desplazamiento horizontal si es necesario */
-        box-sizing: border-box; /* Incluir padding y borde en el tamaño */
-    }
+        width: calc(80vw - 100px); /* 80% del ancho de la ventana menos un pequeño margen */
+         overflow-x: auto; /* Desplazamiento horizontal si es necesario */
+         box-sizing: border-box; /* Incluir padding y borde en el tamaño */
+        }           
+
 </style>
 
 <AuthorizeView Roles="Admin">
@@ -253,10 +254,10 @@
                                             
                                         </RadzenRow>
                                     }
-                                    <div style="width:auto; overflow-x: auto;">
+                                    <div style="width:100%; overflow-x: auto; display: flex; justify-content: center;">
                                     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And"
                                                     AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                                                        Data="@listInitial" ColumnWidth="300rem" Density="Density.Compact" class="responsive-table">
+                                                        Data="@listInitial" ColumnWidth="auto" Density="Density.Compact" style="min-width: 800px; max-width: 100%;" class="responsive-table">
 
                                          <Columns>
                                             <RadzenDataGridColumn Property="plant" Title="plant" />
@@ -270,9 +271,8 @@
                                             <RadzenDataGridColumn Property="total_quantity" Title="total_quantity" />
                                             <RadzenDataGridColumn Property="total_cost" Title="total_cost" />
                                             <RadzenDataGridColumn Property="currency" Title="currency" />
-                                            <RadzenDataGridColumn Property="unit_standard_costo" Title="unit_standard_costo" />
+                                            <RadzenDataGridColumn Property="unit_standard_cost" Title="unit_standard_cost" />
                                             <RadzenDataGridColumn Property="execution_date" Title="execution_date" />
-                                            <RadzenDataGridColumn Property="fkPeriodo" Title="fkPeriodo" />
                                         </Columns> 
                                     </RadzenDataGrid>
                                     </div>
@@ -512,7 +512,7 @@
                 if (result == "Error")
                 {
                     await refreshInfo();
-                    Modal.Show("ERROR AL GUARDAR NUEVO STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                    Modal.Show("ERROR AL GUARDAR MATERIALS", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
                 }
@@ -525,7 +525,7 @@
                 if (result == "Error")
                 {
                     await refreshInfo();
-                    Modal.Show("ERROR AL GUARDAR NUEVO STORAGE BIN", "ERROR", Message.ERROR, Icon.ERROR);
+                    Modal.Show("ERROR AL GUARDAR INITIAL LOAD", "ERROR", Message.ERROR, Icon.ERROR);
                     Loading.Hide();
                     return;
                 }

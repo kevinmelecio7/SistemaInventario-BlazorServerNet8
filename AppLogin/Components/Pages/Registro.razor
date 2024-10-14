@@ -2,8 +2,8 @@
 
 <style>
     .large-font-input {
-        font-size: 30px !important; /* Tamaño de la letra */
-        padding: 30px !important; /* Espacio interno */
+        font-size: 60px !important; /* Tamaño de la letra */
+        padding: 40px !important; /* Espacio interno */
     }
 </style>
 
@@ -13,43 +13,74 @@
     </NotAuthorized>
     <Authorized>
         <h3>Registro</h3>
+
         <RadzenStack>
             <RadzenFieldset Text="Ingresa valores" class="rz-background-color-base-100">
-                <RadzenStack  Gap="1rem">
+                <RadzenStack Gap="1rem">
                     <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Numero de Parte </RadzenText>
-                        <RadzenText TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Left" class="rz-pt-2"><b> @descripcion </b>  </RadzenText>
-                    </RadzenRow>
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" class="form-control large-font-input" />
-                        @* <input type="text" class="form-control large-font-input" placeholder="Escribe aquí..." /> *@
-                    </RadzenRow>
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Storage Bin </RadzenText>
-                        <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" class="form-control large-font-input" />
-                    </RadzenRow>
-                    @* <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenColumn Size="12" SizeMD="3">
-                            <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Numero de Parte </RadzenText>
+                        <RadzenColumn Size="2">
+                            <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Numero de Parte </RadzenText>
                         </RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="5">
-                            <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" />
-                        </RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="4">
-                            <RadzenText TextStyle="TextStyle.Body1" TextAlign="TextAlign.Left" class="rz-pt-2"> @descripcion </RadzenText>
+                        <RadzenColumn Size="10">
+                            <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" aria-label="Default TextBox" Placeholder="Ingresa Numero de Parte" class="form-control large-font-input" />
                         </RadzenColumn>
                     </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenText TextStyle="TextStyle.DisplayH2" TextAlign="TextAlign.Left" class="rz-pt-1"><b> @descripcion </b>  </RadzenText>
+                        </RadzenRow>
                     <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenColumn Size="12" SizeMD="3">
-                            <RadzenText TextStyle="TextStyle.H5" class="rz-pt-1"> Storage Bin </RadzenText>
+                        <RadzenColumn Size="2">
+                            <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Storage Bin </RadzenText>
                         </RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="5">
-                            <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" />
+                        <RadzenColumn Size="10">
+                            <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa Storage Bin" class="form-control large-font-input" />
                         </RadzenColumn>
-                    </RadzenRow> *@
+                    </RadzenRow>
                 </RadzenStack>
+                @* <RadzenStack Gap="1rem">
+                <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Numero de Parte </RadzenText>
+                <RadzenText TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Left" class="rz-pt-2"><b> @descripcion </b>  </RadzenText>
+                </RadzenRow>
+                <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" class="form-control large-font-input" />
+                </RadzenRow>
+                <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Storage Bin </RadzenText>
+                <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" class="form-control large-font-input" />
+                </RadzenRow>
+                </RadzenStack> *@
             </RadzenFieldset>
         </RadzenStack>
+        @if (vacio)
+        {
+            <div class="modal fade show bg-black bg-opacity-50" style="display:block;" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom-0">
+                            <h1 class="modal-title fs-5">PRECAUCION</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex flex-row mb-3 align-items-center">
+                                <img src="@Icon.WARNING" class="img-fluid" alt="Modal Icon" style="max-width: 50px; max-height: 50px;" />
+                                <div class="p-2 fs-5">EL ADMINISTRADOR AUN NO HA ACTIVDADO EL PERIODO</div>
+                            </div>
+                            @if (Modal.MessageSecondary.Length != 0)
+                            {
+                                <div class="d-flex flex-row mb-3 align-items-center">
+                                    <div class="p-2 fs-5">RECARGE LA PAGINA CUANDO SE LE NOTIFIQUE EL CAMBIO DE PERIODO</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer border-top-0">
+                            <button type="button" class="btn btn-@Message.WARNING" @onclick="() => btnHome()">ACEPTAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
 
         
         @* COLOCAR CONIDCION, SI NO EXISTE ALGUNO DE LOS DOS, MOSTRAR BOTON DE CAPTURA ADICIONAL*@
@@ -217,6 +248,7 @@
 
 
     bool capturaAdicional = false;
+    bool vacio = false;
 
     // bool materialValid = false;
     // bool storageValid = false;
@@ -251,6 +283,9 @@
 
     string usuario = string.Empty;
 
+    private DateTime lastKeyPressTime;
+    private bool isScannerInput;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -258,6 +293,7 @@
         listPeriodo = await InputsDataService.GetPeriodoAsync();
         if (listPeriodo.Count() > 0 && listPeriodo[0].activo == 1)
         {
+            vacio = false;
             peridoActual = listPeriodo[0];
             listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);
             listInitial = listInitial.Where(item => item.estado != "CONTADO").ToList();
@@ -282,10 +318,19 @@
             {
                 usuario = user.Identity.Name!;
             }
-        } else
+
+            // Console.WriteLine("Debo generar un folio a todos los registros");
+            string result1 = await InputsDataService.UpdateInitialLoadFolioAsync();
+            if (result1 == "Error")
+            {
+                Modal.Show("ERROR AL GENERAR FOLIOS", "ERROR", Message.ERROR, Icon.ERROR);
+                Loading.Hide();
+                return;
+            }
+        } 
+        else
         {
-            Modal.Show("EL ADMINISTRADOR AUN NO HA ACTIVDADO EL PERIODO", "PRECAUCION", Message.WARNING, Icon.WARNING, "RECARGE LA PAGINA CUANDO SE LE NOTIFIQUE EL CAMBIO DE PERIODO");
-            NavManager.NavigateTo("home");
+            vacio = true;
         }
     }
 
@@ -302,13 +347,16 @@
     // }
     //     if (materialNPTXT == "" || storageTXT == "")
 
+    private void btnHome()
+    {
+        NavManager.NavigateTo("home");
+    }
 
 
     private async Task enter(KeyboardEventArgs e, int textbox)
     {
         if (e.Key == "Tab" || e.Key == "Enter")
         {
-
             validarCamposTexto(textbox);
         }
     }
@@ -321,7 +369,6 @@
             switch (textbox)
             {
                 case 1:
-
                     bool validarExisteMaterial = listInitialMaterial.Any(item => item.MaterialNumber!.Equals(materialNPTXT, StringComparison.OrdinalIgnoreCase));
                     if (validarExisteMaterial)
                     {
@@ -517,19 +564,19 @@
         {
             listInitial = await InputsDataService.GetInitialLoadAsync(listPeriodo[0].id);
             listInitialResultado = listInitial.Where(x => x.storage_bin == storageTXT).Where(y => y.material_number == materialNPTXT).ToList();
-            if (listInitialResultado[0].folio is null || listInitialResultado[0].folio == "")
-            {
-                // Console.WriteLine("Debo generar un folio a todos los registros");
-                string result1 = await InputsDataService.UpdateInitialLoadFolioAsync();
-                if (result1 == "Error")
-                {
-                    Modal.Show("ERROR AL GENERAR FOLIOS", "ERROR", Message.ERROR, Icon.ERROR);
-                    Loading.Hide();
-                    return;
-                }
-                await Guardado();
-                return;
-            }
+            // if (listInitialResultado[0].folio is null || listInitialResultado[0].folio == "")
+            // {
+            //     // Console.WriteLine("Debo generar un folio a todos los registros");
+            //     string result1 = await InputsDataService.UpdateInitialLoadFolioAsync();
+            //     if (result1 == "Error")
+            //     {
+            //         Modal.Show("ERROR AL GENERAR FOLIOS", "ERROR", Message.ERROR, Icon.ERROR);
+            //         Loading.Hide();
+            //         return;
+            //     }
+            //     await Guardado();
+            //     return;
+            // }
             // Console.WriteLine($"El folio es {listInitialResultado[0].folio}");
             folio = listInitialResultado[0].folio!;
             InitialLoadDTO updateInitial = listInitialResultado[0];
@@ -549,19 +596,20 @@
                 {
                     folio = folio,
                     periodo = peridoActual.periodo,
+                    estado = "PRECARGADO",
                     storage_bin = listInitialResultado[0].storage_bin,
                     material_number = listInitialResultado[0].material_number,
                     material_descripcion = listInitialResultado[0].material_description,
                     unit_standard_cost = listInitialResultado[0].unit_standard_cost,
                     cantidad_inicial = listInitialResultado[0].total_quantity,
                     cantidad_contada = cantidad,
-                    diferencia_cantidad = listInitialResultado[0].total_quantity - cantidad,
-                    porcentaje_diferencia = (((listInitialResultado[0].total_quantity - cantidad) * 100) / listInitialResultado[0].total_quantity),
+                    diferencia_cantidad = cantidad - listInitialResultado[0].total_quantity,
+                    porcentaje_diferencia = (((cantidad - listInitialResultado[0].total_quantity) * 100) / listInitialResultado[0].total_quantity),
                     importe_inicial = listInitialResultado[0].total_cost,
 
                     importe_contada = ((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity),
-                    diferencia_importe = listInitialResultado[0].total_cost - ((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity),
-                    porcentaje_variacion_importe = ((listInitialResultado[0].total_cost - ((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity)) * 100) / listInitialResultado[0].total_quantity,
+                    diferencia_importe = ((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity) - listInitialResultado[0].total_cost,
+                    porcentaje_variacion_importe = ((((cantidad * listInitialResultado[0].total_cost) / listInitialResultado[0].total_quantity) - listInitialResultado[0].total_cost) * 100) / listInitialResultado[0].total_quantity,
                     // importe_contada = listInitialResultado[0].unit_standard_cost * cantidad,
                     // diferencia_importe = listInitialResultado[0].total_cost - (listInitialResultado[0].unit_standard_cost * cantidad),
                     // porcentaje_variacion_importe = (100 - (((listInitialResultado[0].unit_standard_cost * cantidad) * 100) / listInitialResultado[0].total_cost)),
@@ -611,6 +659,7 @@
                 {
                     folio = folio,
                     periodo = peridoActual.periodo,
+                    estado = "ADICIONAL",
                     storage_bin = storage.storagebin,
                     material_number = material.materialID,
                     material_descripcion = material.descripcion,

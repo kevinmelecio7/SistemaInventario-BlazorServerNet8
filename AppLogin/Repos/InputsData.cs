@@ -716,13 +716,14 @@ namespace AppLogin.Repos
                     {
                         try
                         {
-                            string sql = "INSERT INTO reporte (folio, periodo, storage_bin, material_number, material_descripcion, unit_standard_cost, cantidad_inicial, cantidad_contada, diferencia_cantidad, porcentaje_diferencia, importe_inicial, importe_contada, diferencia_importe, porcentaje_variacion_importe, usuario, fecha ) " +
-                                            "VALUES (@folio, @periodo, @storage_bin, @material_number, @material_descripcion, @unit_standar_cost, @cantidad_inicial, @cantidad_contada, @diferencia_cantidad, @porcentaje_diferencia, @importe_inicial, @importe_contada, @diferencia_importe, @porcentaje_variacion_importe, @usuario, GETDATE());";
+                            string sql = "INSERT INTO reporte (folio, periodo, estado, storage_bin, material_number, material_descripcion, unit_standard_cost, cantidad_inicial, cantidad_contada, diferencia_cantidad, porcentaje_diferencia, importe_inicial, importe_contada, diferencia_importe, porcentaje_variacion_importe, usuario, fecha ) " +
+                                            "VALUES (@folio, @periodo, @estado, @storage_bin, @material_number, @material_descripcion, @unit_standar_cost, @cantidad_inicial, @cantidad_contada, @diferencia_cantidad, @porcentaje_diferencia, @importe_inicial, @importe_contada, @diferencia_importe, @porcentaje_variacion_importe, @usuario, GETDATE());";
 
                             using (var command = new SqlCommand(sql, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("@folio", obj.folio);
                                 command.Parameters.AddWithValue("@periodo", obj.periodo);
+                                command.Parameters.AddWithValue("@estado", obj.estado);
                                 command.Parameters.AddWithValue("@storage_bin", obj.storage_bin);
                                 command.Parameters.AddWithValue("@material_number", obj.material_number);
                                 command.Parameters.AddWithValue("@material_descripcion", obj.material_descripcion);
@@ -780,12 +781,14 @@ namespace AppLogin.Repos
                                     id = Convert.ToInt32(reader["id"]),
                                     folio = reader["folio"].ToString(),
                                     periodo = reader["periodo"].ToString(),
+                                    estado = reader["estado"].ToString(),
                                     storage_bin = reader["storage_bin"].ToString(),
                                     material_number = reader["material_number"].ToString(),
                                     material_descripcion = reader["material_descripcion"].ToString(),
                                     unit_standard_cost = double.Parse(reader["unit_standard_cost"].ToString()),
                                     cantidad_inicial = double.Parse(reader["cantidad_inicial"].ToString()),
                                     cantidad_contada = double.Parse(reader["cantidad_contada"].ToString()),
+                                    cantidad_segundo = double.Parse(reader["cantidad_segundo"].ToString()),
                                     diferencia_cantidad = double.Parse(reader["diferencia_cantidad"].ToString()),
                                     porcentaje_diferencia = double.Parse(reader["porcentaje_diferencia"].ToString()),
                                     importe_inicial = double.Parse(reader["importe_inicial"].ToString()),
