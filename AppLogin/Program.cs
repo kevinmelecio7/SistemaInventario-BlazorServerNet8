@@ -47,7 +47,8 @@ builder.Services.AddScoped<IAccount, Account>();
 builder.Services.AddScoped<IUser, User>();
 builder.Services.AddScoped<IInputsData, InputsData>();
 builder.Services.AddScoped<IBitacora, Bitacora>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7199/") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:81/") });
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5240/") });
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<BitacoraService>();
@@ -85,5 +86,7 @@ app.MapRazorComponents<App>()
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseWebSockets();
 
 app.Run();

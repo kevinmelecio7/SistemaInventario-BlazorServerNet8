@@ -313,7 +313,6 @@ namespace AppLogin.Controllers
         }
 
         
-
         [HttpPost("InsertReporte")]
         [AllowAnonymous]
         public async Task<ActionResult> InsertReporte(ReporteDTO obj)
@@ -340,6 +339,60 @@ namespace AppLogin.Controllers
             try
             {
                 dtosReporte = await inputsrepo.GetReportePorPeriodoAsync(periodo);
+                var response = new ApiResponse<List<ReporteDTO>> { Mensaje = "ok", Response = dtosReporte };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<ReporteDTO>> { Mensaje = ex.Message, Response = null! };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse); ;
+            }
+        }
+
+        [HttpPut("UpdateReporte")]
+        [AllowAnonymous]
+        public async Task<ActionResult> UpdateReporte(ReporteDTO obj)
+        {
+            try
+            {
+                await inputsrepo.UpdateReporteAsync(obj);
+                var response = new ApiResponse<List<ReporteDTO>> { Mensaje = "ok", Response = null! };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<ReporteDTO>> { Mensaje = ex.Message, Response = null! };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+        [HttpDelete("DeleteReporte")]
+        [AllowAnonymous]
+        public async Task<ActionResult> DeleteReporteAsync(ReporteDTO obj)
+        {
+            try
+            {
+                await inputsrepo.DeleteReporteAsync(obj);
+                var response = new ApiResponse<List<UserDTO>> { Mensaje = "ok", Response = null! };
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<UserDTO>> { Mensaje = ex.Message, Response = null! };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+        [HttpGet("GetInitialLoadPendientes")] 
+        [AllowAnonymous]
+        public async Task<IActionResult> GetInitialLoadPendientesAsync([FromQuery] string periodo)
+        {
+
+            try
+            {
+                dtosReporte = await inputsrepo.GetInitialLoadPendientesAsync(periodo);
                 var response = new ApiResponse<List<ReporteDTO>> { Mensaje = "ok", Response = dtosReporte };
                 return Ok(response);
             }

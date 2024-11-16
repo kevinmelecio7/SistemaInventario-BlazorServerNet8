@@ -29,7 +29,10 @@ namespace AppLogin.Repos
         
         Task InsertReporteAsync(ReporteDTO obj);
         Task<List<ReporteDTO>> GetReportePorPeriodoAsync(string periodo);
+        Task UpdateReporteAsync(ReporteDTO obj);
+        Task DeleteReporteAsync(ReporteDTO obj);
 
+        Task<List<ReporteDTO>> GetInitialLoadPendientesAsync(string periodo);
 
 
     }

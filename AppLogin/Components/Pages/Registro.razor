@@ -22,7 +22,8 @@
                             <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Numero de Parte </RadzenText>
                         </RadzenColumn>
                         <RadzenColumn Size="10">
-                            <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" aria-label="Default TextBox" Placeholder="Ingresa Numero de Parte" class="form-control large-font-input" />
+                            <RadzenTextBox @bind-Value="materialNPTXT" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" aria-label="Default TextBox" Placeholder="Ingresa Numero de Parte" class="form-control large-font-input" />
+                            @* <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" aria-label="Default TextBox" Placeholder="Ingresa Numero de Parte" class="form-control large-font-input" /> *@
                         </RadzenColumn>
                     </RadzenRow>
                         <RadzenRow AlignItems="AlignItems.Center">
@@ -33,23 +34,11 @@
                             <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Storage Bin </RadzenText>
                         </RadzenColumn>
                         <RadzenColumn Size="10">
-                            <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa Storage Bin" class="form-control large-font-input" />
+                            <RadzenTextBox @bind-Value="storageTXT" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa Storage Bin" class="form-control large-font-input" />
+                            @* <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa Storage Bin" class="form-control large-font-input" /> *@
                         </RadzenColumn>
                     </RadzenRow>
                 </RadzenStack>
-                @* <RadzenStack Gap="1rem">
-                <RadzenRow AlignItems="AlignItems.Center">
-                <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Numero de Parte </RadzenText>
-                <RadzenText TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Left" class="rz-pt-2"><b> @descripcion </b>  </RadzenText>
-                </RadzenRow>
-                <RadzenRow AlignItems="AlignItems.Center">
-                <RadzenTextBox @bind-Value="materialNPTXT" @oninput="@(e => materialNPTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 1)) @ref="materialTextBox" Disabled="enableMaterial" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa codigo Numero de Parte" class="form-control large-font-input" />
-                </RadzenRow>
-                <RadzenRow AlignItems="AlignItems.Center">
-                <RadzenText TextStyle="TextStyle.DisplayH4" class="rz-pt-1"> Storage Bin </RadzenText>
-                <RadzenTextBox @bind-Value="storageTXT" @oninput="@(e => storageTXT = ((ChangeEventArgs)e).Value?.ToString())" @onkeydown=@(e => enter(e, 2)) Style="width: 100%" Disabled="enableStorage" aria-label="Default TextBox" Placeholder="Ingresa codigo Storage Bin" class="form-control large-font-input" />
-                </RadzenRow>
-                </RadzenStack> *@
             </RadzenFieldset>
         </RadzenStack>
         @if (vacio)
@@ -64,7 +53,7 @@
                         <div class="modal-body">
                             <div class="d-flex flex-row mb-3 align-items-center">
                                 <img src="@Icon.WARNING" class="img-fluid" alt="Modal Icon" style="max-width: 50px; max-height: 50px;" />
-                                <div class="p-2 fs-5">EL ADMINISTRADOR AUN NO HA ACTIVDADO EL PERIODO</div>
+                                <div class="p-2 fs-5">EL ADMINISTRADOR AUN NO HA ACTIVDADO EL PERIODO O AUN NO AGREGA LOS PARAMETROS PARA EL ESCANEO</div>
                             </div>
                             @if (Modal.MessageSecondary.Length != 0)
                             {
@@ -157,7 +146,7 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header border-bottom-0">
-                            <h1 class="modal-title fs-5"><b>¿Estas seguro de guardar?</b></h1>
+                            <h1 class="modal-title fs-5"><b>¿Estas seguro(a) de guardar?</b></h1>
                         </div>
                         <div class="modal-body">
                             <div class="d-flex flex-row mb-3 align-items-center">
@@ -318,14 +307,21 @@
             {
                 usuario = user.Identity.Name!;
             }
-
-            // Console.WriteLine("Debo generar un folio a todos los registros");
-            string result1 = await InputsDataService.UpdateInitialLoadFolioAsync();
-            if (result1 == "Error")
+            if (listInitial.Count() == 0 || listStorage.Count() == 0 || listMaterial.Count() == 0)
             {
-                Modal.Show("ERROR AL GENERAR FOLIOS", "ERROR", Message.ERROR, Icon.ERROR);
-                Loading.Hide();
+                vacio = true;
                 return;
+            }
+            if (listInitial[0].estado == "")
+            {
+                // Console.WriteLine("Debo generar un folio a todos los registros");
+                string result1 = await InputsDataService.UpdateInitialLoadFolioAsync();
+                if (result1 == "Error")
+                {
+                    Modal.Show("ERROR AL GENERAR FOLIOS", "ERROR", Message.ERROR, Icon.ERROR);
+                    Loading.Hide();
+                    return;
+                }
             }
         } 
         else
@@ -341,11 +337,7 @@
             await materialTextBox.FocusAsync();
         }
     }
-    // if (materialNPTXT == "" && textbox == 1)
-    //     {
-    //         await enter(e, 1);
-    // }
-    //     if (materialNPTXT == "" || storageTXT == "")
+
 
     private void btnHome()
     {
@@ -357,6 +349,15 @@
     {
         if (e.Key == "Tab" || e.Key == "Enter")
         {
+            Loading.Show();
+            await Task.Delay(1500);
+            Loading.Hide();
+            if (materialNPTXT != "" && materialNPTXT[0] == 'P')
+                materialNPTXT = materialNPTXT.Substring(1);
+
+            if (storageTXT != "" && storageTXT[0] == '0' && storageTXT[1] == '0')
+                storageTXT = storageTXT.Substring(3);
+
             validarCamposTexto(textbox);
         }
     }
@@ -439,24 +440,25 @@
         {
             materialNPTXT = "";
             storageTXT = "";
+            capturaAdicional = false;
             Modal.Show("NUMERO DE PARTE Y STORAGE BIN NO EXISTEN", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO NUMERO DE PARTE Y STORAGE BIN");
             return;
         }
         if(material is null)
         {
             materialNPTXT = "";
+            capturaAdicional = false;
             Modal.Show("NUMERO DE PARTE NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO NUMERO DE PARTE");
             return;
         }
         if (storage is null)
         {
             storageTXT = "";
+            capturaAdicional = false;
             Modal.Show("STORAGE BIN NO EXISTE", "PRECAUCION", Message.WARNING, Icon.WARNING, "INGRESA UN NUEVO STORAGE BIN");
             return;
         }
         validarCamposTexto(2);
-
-        // enableGuardado = true;
     }
 
     private void validarInitial()
@@ -513,16 +515,6 @@
 
             enableMaterial = true;
             enableStorage = true;
-
-            // if(material is null || storage is null)
-            // {
-            //     enableAdicional = true;
-            // } else
-            // {
-            //     enableGuardado = true;
-            // }
-            // enableMaterial = true;
-            // enableStorage = true;
         }
 
 
@@ -598,6 +590,7 @@
                     periodo = peridoActual.periodo,
                     estado = "PRECARGADO",
                     storage_bin = listInitialResultado[0].storage_bin,
+                    storage_type = listInitialResultado[0].storage_type,
                     material_number = listInitialResultado[0].material_number,
                     material_descripcion = listInitialResultado[0].material_description,
                     unit_standard_cost = listInitialResultado[0].unit_standard_cost,
@@ -661,6 +654,7 @@
                     periodo = peridoActual.periodo,
                     estado = "ADICIONAL",
                     storage_bin = storage.storagebin,
+                    storage_type = storage.storagetype,
                     material_number = material.materialID,
                     material_descripcion = material.descripcion,
                     unit_standard_cost = material.unit_price,

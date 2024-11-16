@@ -39,8 +39,20 @@ namespace AppLogin.Services
         public async Task<LoginResponse> LoginAsync(LoginDTO model)
         {
             var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/login", model);
-            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
-            return result!;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<LoginResponse>();
+            }
+            else
+            {
+                // Puedes leer el contenido como texto para ver el mensaje de error
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error en la solicitud: {errorMessage}");
+            }
+            //var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/login", model);
+            //var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            //return result!;
         }
 
         public async Task<RegistrationResponse> RegisterAsync(RegisterDTO model)

@@ -21,7 +21,7 @@
 
         @if(users != null)
         {
-            <RadzenDataGrid @ref="usersGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" ColumnWidth="150rem" EditMode="@editMode"
+            <RadzenDataGrid @ref="usersGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="10" AllowSorting="true" ColumnWidth="150rem" EditMode="@editMode"
                             Data="users" TItem="UserDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Filter="@Reset">
 
                 @* <HeaderTemplate>
@@ -194,7 +194,7 @@
                             <RadzenText TextStyle="TextStyle.Body1" class="rz-pt-2 rz-color-danger"> @validacion </RadzenText>
                         }
                         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
-                            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="AGREGAR USUARIO" Click="UpdatePassword" />
+                            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="MODIFICAR CONTRASEÑA" Click="UpdatePassword" />
                             <RadzenButton ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Large" Icon="cancel" Text="CANCELAR" Click="()=>{showUpdatePassword = false; userUpdate = new(); Register = new(); validacion = string.Empty;}" />
                         </RadzenStack>
 

@@ -122,6 +122,11 @@
                                                     <RadzenTextBox @bind-Value="storage.storagebin" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa nuevo" />
                                                 </EditTemplate>
                                             </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn Property="storagetype" Title="Storage Type">
+                                                <EditTemplate Context="storage">
+                                                    <RadzenTextBox @bind-Value="storage.storagetype" Style="width: 100%" aria-label="Default TextBox" Placeholder="Ingresa nuevo" />
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>
                                             <RadzenDataGridColumn Context="storage" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right" Width="15rem">
                                                 <Template Context="storage">
                                                     <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
@@ -606,7 +611,7 @@
     async Task SaveRowStorage(StorageBinDTO storage)
     {
         Loading.Show();
-        if (storage.storagebin is null || storage.storagebin.Length > 10 || storage.storagebin == "")
+        if (storage.storagebin is null || storage.storagebin.Length > 10 || storage.storagebin == "" || storage.storagetype is null || storage.storagetype.Length > 10 || storage.storagetype == "")
         {
             Modal.Show("DATO INVALIDO, INGRESA UN VALOR VALIDO", "ERROR", Message.ERROR, Icon.ERROR);
             Loading.Hide();
@@ -632,7 +637,7 @@
             }
             btnEliminarListStorage = true;
             await SaveBitacora("SaveRowStorage", "ACTUALIZAR", "Storage Bin Actualizado");
-            Modal.Show($"SE HA MODIFICADO EL STORAGE BIN A {storage.storagebin}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
+            Modal.Show($"SE HA MODIFICADO EL STORAGE BIN A {storage.storagebin} Y STORAGE TYPE {storage.storagetype}", "GUARDADO", Message.SUCCESS, Icon.SUCCESS);
         }
         await CancelEditStorage(storage);
         Loading.Hide();
@@ -712,9 +717,9 @@
         var rl = new List<string>();
 
         int cc = hr.LastCellNum;
-        if(cc != 1)
+        if(cc != 2)
         {
-            Modal.Show("EL FORMATO DEL ARCHIVO PARA 'STORAGE BIN' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 1 COLUMNA");
+            Modal.Show("EL FORMATO DEL ARCHIVO PARA 'STORAGE BIN' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 2 COLUMNAS");
             Loading.Hide();
             return;
         }
@@ -745,12 +750,13 @@
 
             storage = new StorageBinDTO { 
                 storagebin = rl[0], 
+                storagetype = rl[1],
                 fkPeriodo = listPeriodo[0].id };
             if(storage.storagebin != "")
             {
                 listStorage.Add(storage);
             }
-            
+
             rl.Clear();
         }
         if (listStorage.Count() > 0)
@@ -800,14 +806,6 @@
             for (var i = r.FirstCellNum; i < cc; i++)
             {
                 rl.Add(r.GetCell(i).ToString());
-            }
-            bool isNumber = int.TryParse(rl[0], out _);
-            if (!isNumber)
-            {
-                listMaterial = new List<MasterDataDTO>();
-                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[0]}' EN LA COLUMNA '{dtMaterial.Columns[0]}' NO ES NUMERICO");
-                Loading.Hide();
-                return;
             }
             double number;
             bool isDouble = double.TryParse(rl[2], out number);

@@ -7,6 +7,7 @@
         public string? periodo { get; set; }
         public string? estado { get; set; }
         public string? storage_bin { get; set; }
+        public string? storage_type { get; set; }
         public string? material_number { get; set; }
         public string? material_descripcion { get; set; }
         public double unit_standard_cost { get; set; }
