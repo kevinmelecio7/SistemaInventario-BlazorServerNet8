@@ -15,7 +15,7 @@
         <br/><br/>
 
         <div style="width:auto; overflow-x: auto;">
-            <RadzenDataGrid @ref="registrosGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And" AllowColumnResize="true"
+            <RadzenDataGrid @ref="registrosGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="10" AllowSorting="true" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LogicalFilterOperator="LogicalFilterOperator.And" AllowColumnResize="true"
                             Data="listReporte" TItem="ReporteDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Filter="@Reset" class="responsive-table">
                 <Columns>
                     <RadzenDataGridColumn Property="folio" Title="Folio" />

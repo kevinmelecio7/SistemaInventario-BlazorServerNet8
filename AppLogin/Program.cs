@@ -43,6 +43,10 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
 });
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 20 * 1024 * 1024; // 20 MB
+});
 builder.Services.AddScoped<IAccount, Account>();
 builder.Services.AddScoped<IUser, User>();
 builder.Services.AddScoped<IInputsData, InputsData>();
@@ -59,6 +63,7 @@ builder.Services.AddSingleton<ILoading, Loading>();
 builder.Services.AddSingleton<IModal, Modal>();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddRadzenComponents();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

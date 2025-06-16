@@ -239,7 +239,7 @@
                                                  ExpandAriaLabel="Expand the customer details.">
                                 @if (listInitial == null || listInitial.Count == 0)
                                 {
-                                    <InputFile OnChange="@ExcelMasterData_InitialLoad" />
+                                    <InputFile OnChange="@ExcelMasterData_InitialLoad" Max />
                                 }
                                 else
                                 {
@@ -526,6 +526,26 @@
                 Modal.Show("MATERIALS GUARDADO", "GUARDADO", Message.SUCCESS, Icon.SUCCESS, "MATERIALS GUARDADO PARA PERIODO: " + listPeriodo[0].periodo);
                 break;
             case 3:
+                // int contador = 0;
+                // List<InitialLoadDTO> listTempInitial = new List<InitialLoadDTO>();
+                // foreach(var obj in listInitial)
+                // {
+                //     listTempInitial.Add(obj);
+                //     contador++;
+                //     if(contador == 10)
+                //     {
+                //         result = await InputsDataService.InsertInitialLoadAsync(listInitial);
+                //         if (result == "Error")
+                //         {
+                //             await refreshInfo();
+                //             Modal.Show("ERROR AL GUARDAR INITIAL LOAD", "ERROR", Message.ERROR, Icon.ERROR);
+                //             Loading.Hide();
+                //             return;
+                //         }
+                //         contador = 0;
+                //         listTempInitial = new List<InitialLoadDTO>();
+                //     }
+                // }
                 result = await InputsDataService.InsertInitialLoadAsync(listInitial);
                 if (result == "Error")
                 {
@@ -701,251 +721,356 @@
 
     async Task ExcelMasterData_StorageBin(InputFileChangeEventArgs e)
     {
-        Loading.Show();
-        dtStorage = new DataTable();
-        var fileStream = e.File.OpenReadStream();
-        var ms = new MemoryStream();
-        await fileStream.CopyToAsync(ms);
-        fileStream.Close();
-        ms.Position = 0;
+        try{
+            Loading.Show();
+            dtStorage = new DataTable();
+            var fileStream = e.File.OpenReadStream();
+            var ms = new MemoryStream();
+            await fileStream.CopyToAsync(ms);
+            fileStream.Close();
+            ms.Position = 0;
 
-        ISheet sheet;
-        var xsswb = new XSSFWorkbook(ms);
+            ISheet sheet;
+            var xsswb = new XSSFWorkbook(ms);
 
-        sheet = xsswb.GetSheetAt(0);
-        IRow hr = sheet.GetRow(0);
-        var rl = new List<string>();
+            sheet = xsswb.GetSheetAt(0);
+            IRow hr = sheet.GetRow(0);
+            var rl = new List<string>();
 
-        int cc = hr.LastCellNum;
-        if(cc != 2)
-        {
-            Modal.Show("EL FORMATO DEL ARCHIVO PARA 'STORAGE BIN' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 2 COLUMNAS");
-            Loading.Hide();
-            return;
-        }
-
-        //OBTENER ENCABEZADOS POR COLUMNA 
-        for (var j = 0; j < cc; j++)
-        {
-            ICell cell = hr.GetCell(j);
-            dtStorage.Columns.Add(cell.ToString());
-        }
-
-        //OBTENER DATOS POR FILAS --->
-        for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
-        {
-            var r = sheet.GetRow(j);
-            for (var i = r.FirstCellNum; i < cc; i++)
-            { 
-                rl.Add(r.GetCell(i).ToString());
-            }
-
-            if (rl[0].Length > 10)
+            int cc = hr.LastCellNum;
+            if (cc != 2)
             {
-                listStorage = new List<StorageBinDTO>();
-                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[0]}' EN LA COLUMNA '{dtStorage.Columns[0]}'");
+                Modal.Show("EL FORMATO DEL ARCHIVO PARA 'STORAGE BIN' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 2 COLUMNAS");
                 Loading.Hide();
                 return;
             }
 
-            storage = new StorageBinDTO { 
-                storagebin = rl[0], 
-                storagetype = rl[1],
-                fkPeriodo = listPeriodo[0].id };
-            if(storage.storagebin != "")
+            //OBTENER ENCABEZADOS POR COLUMNA
+            for (var j = 0; j < cc; j++)
             {
-                listStorage.Add(storage);
+                ICell cell = hr.GetCell(j);
+                dtStorage.Columns.Add(cell.ToString());
             }
 
-            rl.Clear();
-        }
-        if (listStorage.Count() > 0)
-        {
-            await guardarList(1);
-        }
-        Loading.Hide();
+            //OBTENER DATOS POR FILAS --->
+            for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
+            {
+                var r = sheet.GetRow(j);
+                for (var i = 0; i < cc; i++)
+                {
+                    rl.Add(r.GetCell(i).ToString());
+                }
+                for (int l = 0; l <= 1; l++)
+                {
+                    if (rl[l].Length == 0)
+                    {
+                        listStorage = new List<StorageBinDTO>();
+                        Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EXISTE CAMPOS VACIOS EN LA COLUMNA '{dtStorage.Columns[l]}'");
+                        Loading.Hide();
+                        return;
+                    }
+                }
 
+                if (rl[0].Length > 10)
+                {
+                    listStorage = new List<StorageBinDTO>();
+                    Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[0]}' EN LA COLUMNA '{dtStorage.Columns[0]}'");
+                    Loading.Hide();
+                    return;
+                }
+
+                storage = new StorageBinDTO
+                    {
+                        storagebin = rl[0],
+                        storagetype = rl[1],
+                        fkPeriodo = listPeriodo[0].id
+                    };
+                if (storage.storagebin != "")
+                {
+                    listStorage.Add(storage);
+                }
+
+                rl.Clear();
+            }
+            if (listStorage.Count() > 0)
+            {
+                await guardarList(1);
+            }
+            Loading.Hide();
+        }
+        catch (Exception ex)
+        {
+            listStorage = new List<StorageBinDTO>();
+            Modal.Show("AL SUBIR ARCHIVO SE GENERO UN ERROR", "ERROR", Message.ERROR, Icon.ERROR, "ERROR: " + ex.Message);
+            await SaveBitacora("ExcelMasterData_StorageBin", "ERROR", ex.Message);
+        }
+        finally
+        {
+            Loading.Hide();
+        }
     }
 
     async Task ExcelMasterData_Material(InputFileChangeEventArgs e)
     {
-        Loading.Show();
-        dtMaterial = new DataTable();
-        var fileStream = e.File.OpenReadStream();
-        var ms = new MemoryStream();
-        await fileStream.CopyToAsync(ms);
-        fileStream.Close();
-        ms.Position = 0;
-
-        ISheet sheet;
-        var xsswb = new XSSFWorkbook(ms);
-
-        sheet = xsswb.GetSheetAt(0);
-        IRow hr = sheet.GetRow(0);
-        var rl = new List<string>();
-
-        int cc = hr.LastCellNum;
-        if (cc != 3)
+        try
         {
-            Modal.Show("EL FORMATO DEL ARCHIVO PARA 'MATERIAL' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 3 COLUMNAS");
-            Loading.Hide();
-            return;
-        }
+            Loading.Show();
+            dtMaterial = new DataTable();
+            var fileStream = e.File.OpenReadStream();
+            var ms = new MemoryStream();
+            await fileStream.CopyToAsync(ms);
+            fileStream.Close();
+            ms.Position = 0;
 
-        //OBTENER ENCABEZADOS POR COLUMNA
-        for (var j = 0; j < cc; j++)
-        {
-            ICell cell = hr.GetCell(j);
-            dtMaterial.Columns.Add(cell.ToString());
-        }
+            ISheet sheet;
+            var xsswb = new XSSFWorkbook(ms);
 
-        //OBTENER DATOS POR FILAS --->
-        for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
-        {
-            var r = sheet.GetRow(j);
-            for (var i = r.FirstCellNum; i < cc; i++)
+            sheet = xsswb.GetSheetAt(0);
+            IRow hr = sheet.GetRow(0);
+            var rl = new List<string>();
+
+            int cc = hr.LastCellNum;
+            if (cc != 3)
             {
-                rl.Add(r.GetCell(i).ToString());
-            }
-            double number;
-            bool isDouble = double.TryParse(rl[2], out number);
-            if (!isDouble)
-            {
-                listMaterial = new List<MasterDataDTO>();
-                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[2]}' EN LA COLUMNA '{dtMaterial.Columns[2]}' NO ES NUMERICO");
+                Modal.Show("EL FORMATO DEL ARCHIVO PARA 'MATERIAL' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 3 COLUMNAS");
                 Loading.Hide();
                 return;
             }
-            master = new MasterDataDTO { 
-                materialID = rl[0], 
-                descripcion = rl[1], 
-                unit_price = double.Parse(rl[2].ToString()),  
-                fkPeriodo = listPeriodo[0].id };
 
-            listMaterial.Add(master);
-            rl.Clear();
+            //OBTENER ENCABEZADOS POR COLUMNA
+            for (var j = 0; j < cc; j++)
+            {
+                ICell cell = hr.GetCell(j);
+                dtMaterial.Columns.Add(cell.ToString());
+            }
 
+            //OBTENER DATOS POR FILAS --->
+            for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
+            {
+                var r = sheet.GetRow(j);
+                for (var i = 0; i < cc; i++)
+                {
+                    if (r.GetCell(i) is null)   
+                        rl.Add("");
+                    else
+                        rl.Add(r.GetCell(i).ToString());
+                }
+
+                for (int l = 0; l <= 2; l++)
+                {
+                    if (rl[l].Length == 0)
+                    {
+                        listMaterial = new List<MasterDataDTO>();
+                        Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EXISTE CAMPOS VACIOS EN LA COLUMNA '{dtMaterial.Columns[l]}'");
+                        Loading.Hide();
+                        return;
+                    }
+                }
+
+                double number;
+                bool isDouble = double.TryParse(rl[2], out number);
+                if (!isDouble)
+                {
+                    listMaterial = new List<MasterDataDTO>();
+                    Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[2]}' EN LA COLUMNA '{dtMaterial.Columns[2]}' NO ES NUMERICO");
+                    Loading.Hide();
+                    return;
+                }
+                master = new MasterDataDTO
+                    {
+                        materialID = rl[0],
+                        descripcion = rl[1],
+                        unit_price = double.Parse(rl[2].ToString()),
+                        fkPeriodo = listPeriodo[0].id
+                    };
+
+                listMaterial.Add(master);
+                rl.Clear();
+
+            }
+            if (listMaterial.Count() > 0)
+            {
+                await guardarList(2);
+            }
+            Loading.Hide();
         }
-        if (listMaterial.Count() > 0)
+        catch (Exception ex)
         {
-            await guardarList(2);
+            listMaterial = new List<MasterDataDTO>();
+            Modal.Show("AL SUBIR ARCHIVO SE GENERO UN ERROR", "ERROR", Message.ERROR, Icon.ERROR, "ERROR: " + ex.Message);
+            await SaveBitacora("ExcelMasterData_Material", "ERROR", ex.Message);
         }
-        Loading.Hide();
+        finally
+        {
+            Loading.Hide();
+        }
+    
     }
 
     async Task ExcelMasterData_InitialLoad(InputFileChangeEventArgs e)
     {
-        Loading.Show();
-        dtInitial = new DataTable();
-        var fileStream = e.File.OpenReadStream();
-        var ms = new MemoryStream();
-        await fileStream.CopyToAsync(ms);
-        fileStream.Close();
-        ms.Position = 0;
-
-        ISheet sheet;
-        var xsswb = new XSSFWorkbook(ms);
-
-        sheet = xsswb.GetSheetAt(0);
-        IRow hr = sheet.GetRow(0);
-        var rl = new List<string>();
-
-        int cc = hr.LastCellNum;
-        if (cc != 21)
+        try
         {
-            Modal.Show("EL FORMATO DEL ARCHIVO PARA 'MATERIAL' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 22 COLUMNAS");
+            Loading.Show();
+            dtInitial = new DataTable();
+            var fileStream = e.File.OpenReadStream(maxAllowedSize: 30 * 1024 * 1024); // para colocar la cantidad de MB solo susituye el primer digito (en este caso es 30)
+            var ms = new MemoryStream();
+            await fileStream.CopyToAsync(ms);
+            fileStream.Close();
+            ms.Position = 0;
+
+            ISheet sheet;
+            var xsswb = new XSSFWorkbook(ms);
+
+            sheet = xsswb.GetSheetAt(0);
+            IRow hr = sheet.GetRow(0);
+            var rl = new List<string>();
+
+            int cc = hr.LastCellNum;
+            if (cc != 21)
+            {
+                Modal.Show("EL FORMATO DEL ARCHIVO PARA 'MATERIAL' ES INVALIDO", "ERROR", Message.ERROR, Icon.ERROR, "DEBE CONTENER 22 COLUMNAS");
+                Loading.Hide();
+                return;
+            }
+
+            //OBTENER ENCABEZADOS POR COLUMNA
+            for (var j = 0; j < cc; j++)
+            {
+                ICell cell = hr.GetCell(j);
+                dtInitial.Columns.Add(cell.ToString());
+            }
+
+            //OBTENER DATOS POR FILAS --->
+            for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
+            {
+                var r = sheet.GetRow(j);
+                if(r is not null)
+                {
+                    for (var i = 0; i < cc; i++)
+                    {
+                        if (r.GetCell(i) is null)
+                            rl.Add("");
+                        else
+                            rl.Add(r.GetCell(i).ToString());
+                    }
+                    if (rl[0].Length != 0 && rl[1].Length != 0 && rl[3].Length != 0 && rl[4].Length != 0 && rl[6].Length != 0 && rl[7].Length != 0) // validar que si los campos IMPORTANTES estan vacios, no leer mas
+                    {
+                        for (int k = 0; k <= 4; k++)
+                        {
+                            if (rl[k].Length == 0)
+                            {
+                                listInitial = new List<InitialLoadDTO>();
+                                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EXISTE CAMPOS VACIOS EN LA COLUMNA '{dtInitial.Columns[k]}'");
+                                Loading.Hide();
+                                return;
+                            }
+                        }
+
+                        for (int l = 6; l <= 12; l++)
+                        {
+                            if (rl[l].Length == 0)
+                            {
+                                listInitial = new List<InitialLoadDTO>();
+                                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EXISTE CAMPOS VACIOS EN LA COLUMNA '{dtInitial.Columns[l]}'");
+                                Loading.Hide();
+                                return;
+                            }
+                        }
+
+                        // if (rl[3].Length == 0)
+                        // {
+                        //     listInitial = new List<InitialLoadDTO>();
+                        //     Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EXISTES CAMPOS VACIOS EN LA COLUMNA '{dtStorage.Columns[4]}'");
+                        //     Loading.Hide();
+                        //     return;
+                        // }
+                        // if (rl[4].Length == 0)
+                        // {
+                        //     listInitial = new List<InitialLoadDTO>();
+                        //     Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EXISTES CAMPOS VACIOS EN LA COLUMNA '{dtStorage.Columns[4]}'");
+                        //     Loading.Hide();
+                        //     return;
+                        // }
+                        if (rl[4].Length > 10)
+                        {
+                            listInitial = new List<InitialLoadDTO>();
+                            Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[4]}' EN LA COLUMNA '{dtStorage.Columns[4]}'");
+                            Loading.Hide();
+                            return;
+                        }
+                        for (int g = 9; g <= 10; g++)
+                        {
+                            double number;
+                            bool isDouble = double.TryParse(rl[g], out number);
+                            if (!isDouble)
+                            {
+                                listInitial = new List<InitialLoadDTO>();
+                                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[g]}' EN LA COLUMNA '{dtInitial.Columns[g]}' NO ES NUMERICO");
+                                Loading.Hide();
+                                return;
+                            }
+                        }
+
+                        double numberA;
+                        bool isDoubleA = double.TryParse(rl[12], out numberA);
+                        if (!isDoubleA)
+                        {
+                            listInitial = new List<InitialLoadDTO>();
+                            Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[12]}' EN LA COLUMNA '{dtInitial.Columns[12]}' NO ES NUMERICO");
+                            Loading.Hide();
+                            return;
+                        }
+
+                        initial = new InitialLoadDTO
+                            {
+                                plant = rl[0],
+                                warehouse = rl[1],
+                                storage_location = rl[2],
+                                storage_type = rl[3],
+                                storage_bin = rl[4],
+                                storage_unit = rl[5],
+                                material_number = rl[6],
+                                material_description = rl[7],
+                                base_unit_of_measure = rl[8],
+                                total_quantity = double.Parse(rl[9]),
+                                total_cost = double.Parse(rl[10]),
+                                currency = rl[11],
+                                unit_standard_cost = double.Parse(rl[12]),
+                                unrestricted_stock = double.Parse(rl[13]),
+                                blocked_stock = double.Parse(rl[14]),
+                                quality_inspection = double.Parse(rl[15]),
+                                returns_stock = double.Parse(rl[16]),
+                                transfer_stock = double.Parse(rl[17]),
+                                consignment_stock = double.Parse(rl[18]),
+                                consignment_value = double.Parse(rl[19]),
+                                execution_date = rl[20],
+                                fkPeriodo = listPeriodo[0].id
+                            };
+                        listInitial.Add(initial);
+                        rl.Clear();
+                    }
+                    }
+                        
+
+                    
+                // }
+                
+            }
+            if (listInitial.Count() > 0)
+            {
+                await guardarList(3);
+            }
             Loading.Hide();
-            return;
-        }
-
-        //OBTENER ENCABEZADOS POR COLUMNA
-        for (var j = 0; j < cc; j++)
+        }catch (Exception ex)
         {
-            ICell cell = hr.GetCell(j);
-            dtInitial.Columns.Add(cell.ToString());
-        }
-
-        //OBTENER DATOS POR FILAS --->
-        for (var j = (sheet.FirstRowNum + 1); j <= sheet.LastRowNum; j++)
+            listInitial = new List<InitialLoadDTO>();
+            Modal.Show("AL SUBIR ARCHIVO SE GENERO UN ERROR", "ERROR", Message.ERROR, Icon.ERROR, "ERROR: " + ex.Message);
+            await SaveBitacora("ExcelMasterData_InitialLoad", "ERROR", ex.Message);
+        } finally
         {
-            var r = sheet.GetRow(j);
-            for (var i = r.FirstCellNum; i < cc; i++)
-            {
-                rl.Add(r.GetCell(i).ToString());
-            }
-            for(int i=0; i <=2; i++){
-                bool isNumber = int.TryParse(rl[i], out _);
-                if (!isNumber)
-                {
-                    listInitial = new List<InitialLoadDTO>();
-                    Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[i]}' EN LA COLUMNA '{dtInitial.Columns[i]}' NO ES NUMERICO");
-                    Loading.Hide();
-                    return;
-                }
-            }
-            if (rl[4].Length > 10)
-            {
-                listInitial = new List<InitialLoadDTO>();
-                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[4]}' EN LA COLUMNA '{dtStorage.Columns[4]}'");
-                Loading.Hide();
-                return;
-            }
-            for (int g = 9; g <= 10; g++)
-            {
-                double number;
-                bool isDouble = double.TryParse(rl[g], out number);
-                if (!isDouble)
-                {
-                    listInitial = new List<InitialLoadDTO>();
-                    Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[g]}' EN LA COLUMNA '{dtInitial.Columns[g]}' NO ES NUMERICO");
-                    Loading.Hide();
-                    return;
-                }
-            }
-
-            double numberA;
-            bool isDoubleA = double.TryParse(rl[12], out numberA);
-            if (!isDoubleA)
-            {
-                listInitial = new List<InitialLoadDTO>();
-                Modal.Show("EXISTE UN DATO INVALIDO EN EL ARCHIVO", "ERROR", Message.ERROR, Icon.ERROR, $"EL VALOR '{rl[12]}' EN LA COLUMNA '{dtInitial.Columns[12]}' NO ES NUMERICO");
-                Loading.Hide();
-                return;
-            }
-
-            initial = new InitialLoadDTO
-                {
-                    plant = rl[0],
-                    warehouse = rl[1],
-                    storage_location = rl[2],
-                    storage_type = rl[3],
-                    storage_bin = rl[4],
-                    storage_unit = rl[5],
-                    material_number = rl[6],
-                    material_description = rl[7],
-                    base_unit_of_measure = rl[8],
-                    total_quantity = double.Parse(rl[9]),
-                    total_cost = double.Parse(rl[10]),
-                    currency = rl[11],
-                    unit_standard_cost = double.Parse(rl[12]),
-                    unrestricted_stock = double.Parse(rl[13]),
-                    blocked_stock = double.Parse(rl[14]),
-                    quality_inspection = double.Parse(rl[15]),
-                    returns_stock = double.Parse(rl[16]),
-                    transfer_stock = double.Parse(rl[17]),
-                    consignment_stock = double.Parse(rl[18]),
-                    consignment_value = double.Parse(rl[19]),
-                    execution_date = rl[20],
-                    fkPeriodo = listPeriodo[0].id
-                };
-            listInitial.Add(initial);
-            rl.Clear();
+            Loading.Hide();
         }
-        if (listInitial.Count() > 0)
-        {
-            await guardarList(3);
-        }
-        Loading.Hide();
     }
 
     void OnCreateRowStorage(StorageBinDTO storage)

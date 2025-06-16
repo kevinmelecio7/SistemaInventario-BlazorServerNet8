@@ -49,3 +49,31 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.large-font-input {
+    font-size: 60px !important; /* Tamaño de la letra */
+    padding: 40px !important; /* Espacio interno */
+}
+
+@media (max-width: 768px) {
+    .large-font-input {
+        font-size: 18px !important; /* Tamaño de la letra reducido */
+        padding: 10px !important; /* Espacio interno reducido */
+    }
+
+    h3 {
+        font-size: 1.2rem; /* Ajusta el tamaño de encabezados */
+    }
+
+    .rz-pt-1 {
+        padding-top: 5px !important; /* Reduce el padding */
+    }
+
+    .rz-fieldset {
+        font-size: 14px; /* Reduce el tamaño del texto dentro del fieldset */
+    }
+
+    .rz-text {
+        font-size: 16px; /* Ajusta texto general */
+    }
+}

@@ -147,7 +147,6 @@
         LoginResponse response = await accountService.LogoutAsync();
         var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
         customAuthStateProvider.UpdateNotAuthenticationState();
-
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
