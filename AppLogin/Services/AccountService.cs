@@ -1,8 +1,6 @@
 ﻿using AppLogin.Components.Pages;
 using AppLogin.DTOs;
 using AppLogin.States;
-using System.Net.Http;
-using System.Text;
 using static AppLogin.Responses.CustomResponses;
 
 namespace AppLogin.Services
