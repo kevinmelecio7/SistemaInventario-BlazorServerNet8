@@ -36,6 +36,17 @@
 
 ###
 
+<h2 align="left">Documentation and Instalation</h2>
+
+###
+
+<div align="left">
+  <p align="left">The installation documentation and explanations are a little extensive, so I preferred to use the documents, which help you understand the system's procedures. I hope this helps you 😁 </p>
+  <p align="left"> User Manual (https://goo.su/cFUY)</p>
+  <p align="left"> Code Documentation (https://goo.su/IOOwV)</p>
+</div>
+<br/>
+
 <h2 align="left">About me</h2>
 
 ###
@@ -43,10 +54,3 @@
 <p align="left">✨ Creating bugs since ...<br>📚 I'm currently learning ...<br>🎯 Goals: ...<br>🎲 Fun fact: ...</p>
 
 
-
-### 
-
-<h2 align="left">Installation</h2>
-<p><b>Step 1. </b> Download the folder with its files</p>
-
-###
