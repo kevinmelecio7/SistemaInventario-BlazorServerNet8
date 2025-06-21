@@ -51,6 +51,11 @@
 
 ###
 
-<p align="left">✨ Creating bugs since ...<br>📚 I'm currently learning ...<br>🎯 Goals: ...<br>🎲 Fun fact: ...</p>
+<p align="left">✨ My name is Kevin, and I like having a repository of the projects I´ve done since high school.
+  <br>
+  📚 I´m a Computer Systems Engineer. I like to program web and mobile applications with business solution or just for fun.
+  <br>
+  🎯 Goals: Learn new technologies to create innovative solutions
+  </p>
 
 
